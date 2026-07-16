@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Mood = () => {
@@ -45,7 +45,7 @@ const Mood = () => {
       max="720" 
       step="1" 
       onChange={(e) => setSleepDuration(parseInt(e.target.value))} value={sleepDuration} 
-      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#4F6F52]" />
+      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#4F6F52]" /> //contoh
       <div className="flex justify-between text-xs text-gray-400 mt-2">
             <span>0h</span>
             <span>12h</span>
