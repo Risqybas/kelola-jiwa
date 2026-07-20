@@ -1,3 +1,3 @@
-import React from 'react';
-
-//belum buat isi footer
+export default function Footer() {
+  return null;
+}
