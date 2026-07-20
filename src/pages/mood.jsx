@@ -1,24 +1,83 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+
+async function submitForm(answer) {
+  const response = await fetch("https://api.yourbackend.com/gratitude", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ answer, date: new Date().toISOString() }),
+  });
+  if (!response.ok) throw new Error("Gagal menyimpan gratitude");
+} //need to understand
 
 const Mood = () => {
   const [mood, setMood] = useState("");
+  const [answer, setAnswer] = useState('')
+  const [error, setError] = useState(null)
+  const [status, setStatus] = useState('typing')
   const navigate = useNavigate();
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    navigate("/mood");
-  }
 
-  const [sleepDuration, setSleepDuration] = useState(0);
+  const safetySectionRef = useRef(null);
+  const renderContent = () => {
+  if (mood === "calm") {
+        return <div> 
+          <p>Wonderful to hear. Enjoy this peaceful moment and let your mind rest.</p> 
+          <button onClick={() => {safetySectionRef.current?.scrollIntoView({ behavior : "smooth"});
+        }}>1 thing you grateful today</button>
+        </div> 
+      } else if (mood === "anxious") {
+        return <div>
+          <p>Take a slow, deep breath. Slow down—you don't have to figure everything out all at once</p>
+          <button onClick={() => navigate("/safety")}>Let's do some exercise</button>
+        </div>
+      } else if (mood === "stable") {
+        return <div> 
+          <p>A great sense of balance. Keep your steady rhythm and move through today at your own pace</p>
+          <button onClick={() => {safetySectionRef.current?.scrollIntoView({ behavior : "smooth"});
+          }}>1 thing you grateful today</button>
+        </div>
+      } else if (mood === "low") {
+        return <div>
+          <p>Thank you for checking in honestly. Having a hard day is okay, and it's completely fine to just rest</p>
+          <button onClick={() => navigate("/safety")}>Click to journal</button>
+        </div>
+      } 
+    };
+
+  const [sleepDuration, setSleepDuration] = useState(480);
   const today = new Date();
 
   const [summaryData, setSummaryData] = useState(null);
   useEffect(() => {
-    fetch("https://api.example.com/daily-summary")
-    .then((res) => res.json())
-    .then((data) => setSummaryData(data));
-  }, []);
+  fetch("https://api.yourbackend.com/daily-summary")
+    .then((res) => {
+      if (!res.ok) throw new Error("Gagal fetch");
+      return res.json();
+    })
+    .then((data) => setSummaryData(data))
+    .catch((err) => {
+      console.error("Gagal mengambil data summary:", err);
+      setSummaryData({ mood: "-", sleep: "-", note: "Data tidak tersedia" }); // fallback
+    });
+}, []); //need to understand
+
+    
+  
+ async function handleSubmit() {
+    setStatus('submitting');
+    try {
+      await submitForm(answer);
+      setStatus('success');
+    } catch (err) {
+      setStatus('typing');
+      setError(err);
+    }
+  }
+  
+  function handleTextAreaChange(e) {
+    setAnswer(e.target.value);
+  }
+
 
   return (
     <div className="bg-[#F2F0ED] min-h-screen">
@@ -30,9 +89,7 @@ const Mood = () => {
         <button onClick={() => setMood("stable")} className="box-border size-36 bg-[#E4E2DE] rounded-3xl">Stable</button>
         <button onClick={() => setMood("low")} className="box-border size-36 bg-[#E4E2DE] rounded-3xl">Low</button>
       </div>
-      {mood && (
-        <p>You selected: {mood}</p>
-      )}
+      {renderContent()}
 
       <div className="box border border-gray-300 size-78 rounded-3xl mx-auto bg-[#E4E2DE] corner">
       <h1 className="text-center text-2xl mx-6 mt-4">Sleep History</h1>
@@ -45,7 +102,7 @@ const Mood = () => {
       min="0" 
       max="720" 
       step="1" 
-      onChange={(e) => setSleepDuration(parseInt(e.target.value))} value={sleepDuration} 
+      onChange={(e) => setSleepDuration(Number(e.target.value) || 0)} value={sleepDuration} 
       className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#4F6F52]" />
       <div className="flex gap-4 max-w-xs mx-auto">
             {/* Kolom Hours */}
@@ -67,13 +124,13 @@ const Mood = () => {
         </div>
       </div>
 
-      <div className="box size-78 rounded-3xl border-gray-300 mx-auto bg-[#E4E2DE] corner mt-8">
+      <div className="box size-78 rounded-3xl border-gray-300 mx-auto bg-[#E4E2DE] corner mt-8 overflow-hidden">
         <div className="flex justify-between items-center px-8 pt-6">
           <div>
             <h1 className="text-2xl font-medium text-gray-700">Daily Summary</h1>
             <h3 className="text-sm text-gray-500 mt-1">
-              {today.toLocaleDateString({
-                weekday: 'numeric',
+              {today.toLocaleDateString('en-US', {
+                weekday: 'long',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
@@ -89,17 +146,34 @@ const Mood = () => {
         </div>
         
         {/* AREA INSIGHTS (Diberi margin agar sejajar dengan teks di atasnya) */}
-        <div className="px-8 mt-6">
-          {summaryData ? (
-            <p className="text-gray-700 text-sm leading-relaxed">{summaryData.insights}</p>
+        <div  ref={safetySectionRef} className="px-8 mt-6">
+          <div className="box-border size-60 bg-white rounded-3xl min-h-3/4">
+          {status === 'success' ? (
+            <p>Very well, gratitude saved!</p>
           ) : (
-            <p className="text-gray-500 text-sm italic">Loading insights...</p>
+          <div>
+              <textarea
+                value={answer}
+                onChange={handleTextAreaChange}
+                disabled={status === 'submitting'}
+              />
+              <br />
+              <button
+                onClick={handleSubmit}  // pindah ke sini
+                disabled={answer.length === 0 || status === 'submitting'}
+              >
+                Submit
+              </button>
+              {error !== null && <p className="Error">{error.message}</p>}
+            </div>
           )}
+          </div>
         </div>
       </div>
 
       </div>
   );
 };
+
 
 export default Mood;
