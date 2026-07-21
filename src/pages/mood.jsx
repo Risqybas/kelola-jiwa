@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import bgImage from '../assets/naturePic.jpg';
 
 async function submitForm(answer) {
   const response = await fetch("https://api.yourbackend.com/gratitude", {
@@ -10,7 +11,7 @@ async function submitForm(answer) {
   if (!response.ok) throw new Error("Gagal menyimpan gratitude");
 } //need to understand
 
-const Mood = () => {
+const Mood = () => {  
   const [mood, setMood] = useState("");
   const [answer, setAnswer] = useState('')
   const [error, setError] = useState(null)
@@ -78,9 +79,9 @@ const Mood = () => {
     setAnswer(e.target.value);
   }
 
-
+// #F2F0ED
   return (
-    <div className="bg-[#F2F0ED] min-h-screen">
+    <div className="bg-[#F5F5F5] min-h-screen">
       <h1 className="text-left text-2xl font-semibold text-gray-900 mx-6 mt-12">How are you feeling today?</h1>
       <h2 className="text-left text-base text-gray-500 mx-6">Take a moment to check in with your inner sanctuary.</h2>
       <div className="grid grid-cols-2 gap-6 w-fit mx-auto mt-6 mb-6">
@@ -91,9 +92,27 @@ const Mood = () => {
       </div>
       {renderContent()}
 
-      <div className="box border border-gray-300 size-78 rounded-3xl mx-auto bg-[#E4E2DE] corner">
-      <h1 className="text-center text-2xl mx-6 mt-4">Sleep History</h1>
-      <h3 className="text-center text-xs mt-1 text-gray-500 mx-6">Total duration last night</h3>
+      <div className="box border border-gray-300/40 size-78 rounded-4xl mx-auto bg-[#E4E2DE] corner">
+        <div className="flex justify-between items-start px-6 pt-6">
+        <div>
+          <h1 className="text-left text-2xl ml-2">Sleep History</h1>
+          <h3 className="text-left text-xs ml-2 mx-6">Total duration last night</h3>
+        </div>
+        {/* Ikon SVG Bulan & Awan (Kanan) */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="-2 0 26 24"
+          fill="none"
+          stroke="#3A5340"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="w-9 h-9 mt-2 shrink-0"
+        >
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          <path d="M11 17a2.5 2.5 0 0 0-4-2 5 5 0 0 0-8.5 3.5 3 3 0 0 0 3 3h9.5a2.5 2.5 0 0 0 0-5Z"/>
+        </svg>
+      </div>
       <div className="my-12 mx-4">
       <input 
       type="range" 
@@ -107,15 +126,15 @@ const Mood = () => {
       <div className="flex gap-4 max-w-xs mx-auto">
             {/* Kolom Hours */}
       <div className="flex-1">
-            <span className="block text-sm font-medium mt-6 text-gray-800 mb-2">Hours</span>
-            <div className="bg-white py-4 px-6 rounded-2xl text-center text-xl font-bold text-gray-800 shadow-sm border border-gray-100">
+            <span className="block text-sm font-medium mt-6 ml-2 text-gray-800 mb-2">Hours</span>
+            <div className="bg-white py-4 px-6 rounded-2xl text-center text-xl font-bold  border-gray-100">
               {Math.floor(sleepDuration / 60)}
             </div>
           </div>
 
           {/* Kolom Minutes */}
           <div className="flex-1">
-            <span className="block text-sm font-medium mt-6 text-gray-800 mb-2">Minutes</span>
+            <span className="block text-sm font-medium mt-6 ml-2 text-gray-800 mb-2">Minutes</span>
             <div className="bg-white py-4 px-6 rounded-2xl text-center text-xl font-bold text-gray-800 shadow-sm border border-gray-100">
               {sleepDuration % 60}
             </div>
@@ -124,7 +143,7 @@ const Mood = () => {
         </div>
       </div>
 
-      <div className="box size-78 rounded-3xl border-gray-300 mx-auto bg-[#E4E2DE] corner mt-8 overflow-hidden">
+      <div className="box w-78 h-86 rounded-3xl border-gray-300 mx-auto bg-[#E4E2DE] corner mt-8 overflow-hidden pb-6">
         <div className="flex justify-between items-center px-8 pt-6">
           <div>
             <h1 className="text-2xl font-medium text-gray-700">Daily Summary</h1>
@@ -136,6 +155,7 @@ const Mood = () => {
                 day: 'numeric'
               })}
             </h3>
+            <h4 className="font-semibold mt-4 text-gray-700">Today's notes</h4>
           </div>
           {/*kalendar logo : terakhir sampe sini belum atur*/}
           <div className="bg-white flex justify-between p-2 border border-gray-300 rounded-xl">
@@ -144,34 +164,76 @@ const Mood = () => {
             </svg>
           </div>
         </div>
-        
-        {/* AREA INSIGHTS (Diberi margin agar sejajar dengan teks di atasnya) */}
-        <div  ref={safetySectionRef} className="px-8 mt-6">
-          <div className="box-border size-60 bg-white rounded-3xl min-h-3/4">
-          {status === 'success' ? (
-            <p>Very well, gratitude saved!</p>
-          ) : (
-          <div>
-              <textarea
-                value={answer}
-                onChange={handleTextAreaChange}
-                disabled={status === 'submitting'}
-              />
-              <br />
-              <button
-                onClick={handleSubmit}  // pindah ke sini
-                disabled={answer.length === 0 || status === 'submitting'}
-              >
-                Submit
-              </button>
-              {error !== null && <p className="Error">{error.message}</p>}
-            </div>
-          )}
+
+        {/* Gratitude Area */}
+        <div ref={safetySectionRef} className="space-y-4">
+          <div className="">
+            {status === 'success' ? (
+              <p className="text-[14px] font-semibold text-[#4a654e] text-center py-6">
+                Very well, gratitude saved!
+              </p>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {/* Kotak Input Textarea */}
+                <textarea
+                  value={answer}
+                  onChange={handleTextAreaChange}
+                  disabled={status === 'submitting'}
+                  placeholder="How was your day? Write anything that comes to mind..."
+                  className=" mt-4 mx-6 bg-white/40 border border-white/60 rounded-2xl p-4 resize-none outline-none text-[16px] text-[#1b1c1a] placeholder:text-[#424842]/50 min-h-28 focus:bg-white/60  transition-all disabled:opacity-50"
+                />
+
+                {/* Tombol Simpan */}
+                <button
+                  onClick={handleSubmit}
+                  disabled={answer.length === 0 || status === 'submitting'}
+                  className="mx-6 m py-4 mb-4 rounded-full bg-[#4a654e] text-white text-[14px] font-semibold flex items-center justify-center gap-2 shadow-lg shadow-[#4a654e]/20 active:scale-[0.98] transition-all disabled:opacity-40"
+                >
+                  <span>{status === 'submitting' ? 'Saving...' : 'Save Entry'}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="size-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    />
+                  </svg>
+                </button>
+
+                {/* Pesan Error */}
+                {error !== null && (
+                  <p className="text-[12px] text-red-500 text-center">{error.message}</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
+      <div className="flex justify-center items-center py-8">
+        <div 
+          className="relative w-78 h-52 rounded-[2.5rem] overflow-hidden bg-cover bg-center flex items-center justify-center p-6 shadow-md"
+          style={{ backgroundImage: `url('/path-ke-gambar-kamu.jpg')` }}
+        >
+          <img 
+          src={bgImage} 
+          alt="Background" 
+          className="absolute inset-0 w-full h-full object-cover" 
+        />
 
-      </div>
+          <div className="absolute inset-0 bg-black/15" />
+        
+          <p className="absolute inset-x-0 bottom-0.5 z-10 py-8 text-center mx-4 font-semibold text-white italic leading-snug drop-shadow-sm ">
+            "You are so much more than this illness. I believe in you."
+          </p>
+          </div>
+        </div>
+    </div>
   );
 };
 
