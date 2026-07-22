@@ -182,3 +182,44 @@
     border-right-color: var(--border);
   }
 }
+
+/* Custom Styling untuk Range Slider */
+.custom-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 20px;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+  /* Menggunakan variable --progress yang dikirim dari React */
+  background: linear-gradient(
+    to right, 
+    #4C626C var(--progress, 0%), 
+    #DDF0F7 var(--progress, 0%)
+  );
+}
+
+/* Styling Thumb (Bulatan) untuk Chrome, Safari, Edge */
+.custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 4px solid #4C626C;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+/* Styling Thumb (Bulatan) untuk Firefox */
+.custom-slider::-moz-range-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 4px solid #4C626C;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
