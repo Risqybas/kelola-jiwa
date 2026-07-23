@@ -137,7 +137,7 @@ const Mood = () => {
       setError(err);
     }
   }
-
+  
   function handleTextAreaChange(e) {
     setAnswer(e.target.value);
   }
@@ -273,7 +273,12 @@ const Mood = () => {
             step="1"
             onChange={(e) => setSleepDuration(Number(e.target.value) || 0)}
             value={sleepDuration}
-            className="w-full h-4 bg-[#E0F4FC] rounded-lg appearance-none cursor-pointer accent-[#384A50]"
+            className="w-full h-4 bg-[#E0F4FC] rounded-lg appearance-none cursor-pointer
+            [&::-webkit-slider-thumb]:appearance-none 
+             [&::-webkit-slider-thumb]:w-6 
+             [&::-webkit-slider-thumb]:h-6 
+             [&::-webkit-slider-thumb]:rounded-full 
+             [&::-webkit-slider-thumb]:bg-[#384A50]"
           />
           <div className="flex gap-4 max-w-xs mx-auto">
             {/* Kolom Hours */}
@@ -313,7 +318,6 @@ const Mood = () => {
                 day: "numeric",
               })}
             </h3>
-            <h4 className="font-semibold mt-4 text-gray-700">Today's notes</h4>
           </div>
           {/*kalendar logo : terakhir sampe sini belum atur*/}
           <div className="bg-white flex justify-between p-2 border border-gray-300 rounded-xl">
@@ -334,7 +338,14 @@ const Mood = () => {
           </div>
         </div>
 
+        
+      </div>
+
+      <div className="box w-84 h-64 bg-[#EBE9E4] rounded-4xl my-6 mx-auto">
         {/* Gratitude Area */}
+        <h1 className="text-xl font-semibold pl-8 pt-6 text-gray-700">
+          Today's notes
+          </h1>
         <div ref={safetySectionRef} className="space-y-4">
           <div className="">
             {status === "success" ? (
