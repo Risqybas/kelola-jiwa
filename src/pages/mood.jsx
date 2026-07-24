@@ -20,7 +20,6 @@ const Mood = () => {
   const [sleepHours, setSleepHours] = useState(8);
   const [sleepMinutes, setSleepMinutes] = useState(0);
 
-
   const gratitudeSentenceRef = useRef(null);
   const safetySectionRef = useRef(null);
   useEffect(() => {
@@ -127,11 +126,14 @@ const Mood = () => {
       });
   }, []); //need to understand
 
+  const [submitGratitude, setSubmitGratitude] = useState("");
   async function handleSubmit() {
     setStatus("submitting");
     try {
-      await submitForm(answer);
+      // await submitForm(answer);
       setStatus("success");
+      setSubmitGratitude(answer)
+      console.log(submitGratitude)
     } catch (err) {
       setStatus("typing");
       setError(err);
@@ -141,6 +143,7 @@ const Mood = () => {
   function handleTextAreaChange(e) {
     setAnswer(e.target.value);
   }
+
 
   return (
     //top page
@@ -240,7 +243,7 @@ const Mood = () => {
       </div>
       {renderContent()}
 
-      <div className="box border border-gray-300/40 size-84 rounded-4xl mx-auto bg-[#EBE9E4] corner">
+      <div className="box border border-gray-300/40 size-84 rounded-4xl mx-auto bg-[#EBE9E4] corner"> 
         <div className="flex justify-between items-start px-6 pt-6">
           <div>
             <h1 className="text-left text-2xl ml-2">Sleep History</h1>
@@ -305,12 +308,12 @@ const Mood = () => {
       </div>
 
       <div className="box w-84 h-86 rounded-4xl border-gray-300 mx-auto bg-[#EBE9E4] corner mt-8 overflow-hidden pb-6">
-        <div className="flex justify-between items-center px-8 pt-6">
+        <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-2xl mt-4 font-medium text-gray-700">
+            <h1 className="text-2xl mt-8 font-medium pl-6 text-gray-700">
               Daily Summary
             </h1>
-            <h3 className="text-sm text-gray-500 mt-1">
+            <h3 className="text-sm text-gray-500 pl-6 mt-1">
               {today.toLocaleDateString("en-US", {
                 weekday: "long",
                 year: "numeric",
@@ -319,8 +322,8 @@ const Mood = () => {
               })}
             </h3>
           </div>
-          {/*kalendar logo : terakhir sampe sini belum atur*/}
-          <div className="bg-white flex justify-between p-2 border border-gray-300 rounded-xl">
+          {/* bg-white flex justify-between p-2 border border-gray-300 rounded-xl */}
+          <div className="bg-white flex items-center justify-center  p-3 border border-gray-200 rounded-2xl mt-10 mr-6">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -337,15 +340,56 @@ const Mood = () => {
             </svg>
           </div>
         </div>
-
-        
+           <table className="table-auto">
+              <tbody>
+                <tr>
+                <td>Mood</td>
+                <td>{mood}</td>
+                </tr>
+              </tbody>
+              <tbody>
+                <tr>
+                <td>Sleep</td>
+                <td>{Math.floor(sleepDuration / 60)}h {Math.floor(sleepDuration % 60)}m</td>
+                </tr>
+              </tbody>
+              <tbody>
+                <tr>
+                <td>Note</td>
+                <td>{submitGratitude}</td>
+                </tr>
+              </tbody>
+          </table>
       </div>
 
-      <div className="box w-84 h-64 bg-[#EBE9E4] rounded-4xl my-6 mx-auto">
+      <div className="box h-auto w-84 bg-[#EBE9E4] rounded-4xl my-6 mx-auto">
         {/* Gratitude Area */}
-        <h1 className="text-xl font-semibold pl-8 pt-6 text-gray-700">
-          Today's notes
-          </h1>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-xl font-semibold pl-8 pt-6 text-gray-700">
+              Today's notes
+            </h1>
+          </div>
+          <div className="bg-white flex justify-between p-2 border border-gray-200 rounded-2xl  mt-5 mr-5">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="-2 0 26 24"
+            fill="none"
+            stroke="#3A5340"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-7 h-7 shrink-0"
+          >
+            {/* Badan pensil */}
+            <path d="M15 6L18 9L9 18H6V15L15 6Z" />
+            {/* Garis pemisah ujung pensil */}
+            <path d="M13 8L16 11" />
+            {/* Ujung pensil (tip) */}
+            <path d="M6 15L9 18" />
+          </svg>
+          </div>
+        </div>
         <div ref={safetySectionRef} className="space-y-4">
           <div className="">
             {status === "success" ? (
