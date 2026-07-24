@@ -1,10 +1,10 @@
-# 🧠 Kelola Jiwa — Bipolar & Mood Tracker
+# Kelola Jiwa — Bipolar & Mood Tracker
 
 > Track your mood. Own your story. Never face a crisis alone.
 
 ---
 
-## 📌 Overview
+## Overview
 
 **Kelola Jiwa** is a mental health web application built for individuals living with bipolar disorder and other psychological conditions. It gives users the tools to monitor emotional patterns, express themselves through private journaling, and trigger automatic emergency responses when their mood hits a critical low — all within a single, accessible platform.
 
@@ -12,7 +12,7 @@ The name *Kelola Jiwa* comes from Indonesian, meaning **"Manage the Soul"** — 
 
 ---
 
-## 🎯 Problem Statement
+## Problem Statement
 
 People with bipolar disorder and mood-related conditions face three recurring challenges:
 
@@ -24,20 +24,20 @@ Kelola Jiwa addresses all three — proactively, not reactively.
 
 ---
 
-## ✨ Core Features
+## Core Features
 
-### 📊 Mood Tracker
+### Mood Tracker
 Log your emotional state daily using a structured mood scale. An interactive chart visualizes mood trends over time, helping users and their support network identify patterns before they escalate.
 
-### 📓 Online Journal
+### Online Journal
 A private, timestamped journal space for users to write freely without judgment. Each entry is linked to the mood data of the same day, building a richer emotional record that can be revisited and reflected upon.
 
-### 🚨 Emergency Contact Automation
+### Emergency Contact Automation
 The most critical feature of Kelola Jiwa: when a user's mood drops to a predefined critical threshold, the system **automatically notifies their registered emergency contacts** — no manual action required from the user. Fast, reliable, and potentially life-saving.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -50,7 +50,7 @@ The most critical feature of Kelola Jiwa: when a user's mood drops to a predefin
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js >= 18.x
@@ -91,16 +91,16 @@ App runs at `http://localhost:5173` (Vite default) or `http://localhost:3000`.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome. Open an **issue** to discuss features or bugs, then submit a **pull request** with a clear description of your changes.
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-<p align="center">Built with ❤️ for those who are still fighting — you are not alone.</p>
+<p align="center">Built with for those who are still fighting — you are not alone.</p>
