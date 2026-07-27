@@ -308,12 +308,10 @@ const Mood = () => {
       </div>
 
       <div className="box w-84 h-86 rounded-4xl border-gray-300 mx-auto bg-[#EBE9E4] corner mt-8 overflow-hidden pb-6">
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-start px-6 pt-8">
           <div>
-            <h1 className="text-2xl mt-8 font-medium pl-6 text-gray-700">
-              Daily Summary
-            </h1>
-            <h3 className="text-sm text-gray-500 pl-6 mt-1">
+            <h1 className="text-2xl font-medium text-gray-700">Daily Summary</h1>
+            <h3 className="text-sm text-gray-500 mt-1">
               {today.toLocaleDateString("en-US", {
                 weekday: "long",
                 year: "numeric",
@@ -322,44 +320,60 @@ const Mood = () => {
               })}
             </h3>
           </div>
-          {/* bg-white flex justify-between p-2 border border-gray-300 rounded-xl */}
-          <div className="bg-white flex items-center justify-center  p-3 border border-gray-200 rounded-2xl mt-10 mr-6">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-              />
+          <div className="bg-white flex items-center justify-center p-3 border border-gray-200 rounded-2xl">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
             </svg>
           </div>
         </div>
-           <table className="table-auto">
-              <tbody>
-                <tr>
-                <td>Mood</td>
-                <td>{mood}</td>
-                </tr>
-              </tbody>
-              <tbody>
-                <tr>
-                <td>Sleep</td>
-                <td>{Math.floor(sleepDuration / 60)}h {Math.floor(sleepDuration % 60)}m</td>
-                </tr>
-              </tbody>
-              <tbody>
-                <tr>
-                <td>Note</td>
-                <td>{submitGratitude}</td>
-                </tr>
-              </tbody>
-          </table>
+
+        <div className="flex flex-col gap-3 mx-6 mt-6">
+          {/* Mood Row */}
+          <div className="bg-white/60 rounded-2xl px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#D2E6ED] flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-7 5 26 24" fill="none" stroke="#3A5340" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                  <path d="M11 17a2.5 2.5 0 0 0-4-2 5 5 0 0 0-8.5 3.5 3 3 0 0 0 3 3h9.5a2.5 2.5 0 0 0 0-5Z" />
+                </svg>
+              </div>
+              <span className="text-sm text-gray-500">Mood</span>
+            </div>
+            <span className="text-sm font-semibold text-gray-700 capitalize">
+              {mood || "—"}
+            </span>
+          </div>
+
+          {/* Sleep Row */}
+          <div className="bg-white/60 rounded-2xl px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#EDE1C9] flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 0 26 24" fill="none" stroke="#3A5340" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                  <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                </svg>
+              </div>
+              <span className="text-sm text-gray-500">Sleep</span>
+            </div>
+            <span className="text-sm font-semibold text-gray-700">
+              {Math.floor(sleepDuration / 60)}h {sleepDuration % 60}m
+            </span>
+          </div>
+
+          {/* Note Row */}
+          <div className="bg-white/60 rounded-2xl px-4 py-3 flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#CCEACE] flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 0 26 24" fill="none" stroke="#3A5340" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                  <path d="M15 6L18 9L9 18H6V15L15 6Z" />
+                  <path d="M13 8L16 11" />
+                </svg>
+              </div>
+              <span className="text-sm text-gray-500">Note</span>
+            </div>
+            <span className="text-sm font-semibold text-gray-700 text-right line-clamp-2">
+              {submitGratitude || "—"}
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className="box h-auto w-84 bg-[#EBE9E4] rounded-4xl my-6 mx-auto">
