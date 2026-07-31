@@ -15,6 +15,33 @@ export function Medications() {
           + Add Medications
         </button>
       </div>
+      <div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 100 100"
+          fill="none"
+          stroke="#3A5340"
+          strokeWidth="5.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          preserveAspectRatio="xMidYMid meet"
+          className="w-18 h-18 rounded-full bg-[#7B987F]/10 mt-8 mx-auto"
+        >
+          {isTablet ? (
+            <>
+            <tabletIcon/>
+              <circle cx="50" cy="50" r="35" />
+              <path d="M 22 50 L 78 50" />
+            </>
+          ) : (
+            <>
+            <kapsulIcon/>
+              <path d="M35 65 L65 35" />
+              <path d="M28 58 C20 50 20 38 28 30 C36 22 48 22 56 30 L70 44 C78 52 78 64 70 72 C62 80 50 80 42 72 L28 58 Z" />
+            </>
+          )}
+        </svg>
+      </div>
       <div className="flex justify-center">
         <div className="box-border h-50 w-90 bg-white rounded-4xl my-4 border border-gray-300"></div>
       </div>

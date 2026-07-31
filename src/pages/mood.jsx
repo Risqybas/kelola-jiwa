@@ -148,10 +148,10 @@ const Mood = () => {
   return (
     //top page
     <div className="page-transition relative bg-[#F5F5F5] min-h-screen">
-      <h1 className="text-left text-2xl font-semibold text-gray-900 mx-6 pt-6">
+      <h1 className="text-left text-2xl font-semibold text-gray-900 ml-9 pt-6">
         How are you feeling today?
       </h1>
-      <h2 className="text-left text-base text-gray-500 mx-6">
+      <h2 className="text-left text-base text-gray-500 mx-9">
         Take a moment to check in with your inner sanctuary.
       </h2>
       <div className="grid grid-cols-2 gap-6 w-fit mx-auto mt-6 mb-6">
