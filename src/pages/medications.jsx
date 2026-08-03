@@ -2,6 +2,21 @@ import { useState, useEffect } from "react";
 import bgImage from "../assets/calmPic.jpg";
 
 export function Medications() {
+  const [inputTablet, setInputTablet] = useState("");
+  const [submittedTablet, setSubmittedTablet] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const isTablet = submittedTablet.toLowerCase().includes("tablet");
+
+  const handlebuttonClick = () => {
+    setSubmittedTablet(inputTablet);
+    setInputTablet("");
+    setShowForm(false);
+  };
+
+  async function handleInputChange(event) {
+    setInputTablet(event.target.value);
+  }
+
   return (
     <div className="page-transition relative bg-[#F5F5F5] min-h-screen">
       <h1 className="text-left text-3xl font-semibold text-gray-900 mx-6 pt-6">
@@ -11,41 +26,55 @@ export function Medications() {
         Maintaining your rhythm with gentle reminders and mindful tracking.
       </h2>
       <div className=" flex justify-center">
-        <button className="box-border w-90 h-12 bg-[#4a654e] rounded-4xl my-6 font-medium text-white">
+        <button
+          className="box-border w-90 h-12 bg-[#4a654e] rounded-4xl my-6 font-medium text-white"
+          onClick={() => {
+           setShowForm(true);
+          }}
+        >
           + Add Medications
         </button>
       </div>
-      <div>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 100 100"
-          fill="none"
-          stroke="#3A5340"
-          strokeWidth="5.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          preserveAspectRatio="xMidYMid meet"
-          className="w-18 h-18 rounded-full bg-[#7B987F]/10 mt-8 mx-auto"
-        >
-          {isTablet ? (
-            <>
-            <tabletIcon/>
-              <circle cx="50" cy="50" r="35" />
-              <path d="M 22 50 L 78 50" />
-            </>
-          ) : (
-            <>
-            <kapsulIcon/>
-              <path d="M35 65 L65 35" />
-              <path d="M28 58 C20 50 20 38 28 30 C36 22 48 22 56 30 L70 44 C78 52 78 64 70 72 C62 80 50 80 42 72 L28 58 Z" />
-            </>
-          )}
-        </svg>
-      </div>
-      <div className="flex justify-center">
-        <div className="box-border h-50 w-90 bg-white rounded-4xl my-4 border border-gray-300"></div>
-      </div>
-
+      {showForm && (
+        <div className="flex flex-col items-center gap-4">
+          <input
+            type="text"
+            value={inputTablet}
+            onChange={(e) => setInputTablet(e.target.value)}
+            placeholder="Enter medication name"
+          />
+          <button
+            onClick={handlebuttonClick}
+            className="box-border w-90 h-12 bg-[#4a654e] rounded-4xl my-6 font-medium text-white"
+          >
+            Submit
+          </button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 100 100"
+            fill="none"
+            stroke="#3A5340"
+            strokeWidth="5.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            preserveAspectRatio="xMidYMid meet"
+            className="w-18 h-18 rounded-full bg-[#7B987F]/10 mt-8 mx-auto"
+          >
+            {isTablet ? (
+              <>
+                <circle cx="50" cy="50" r="35" />
+                <path d="M 22 50 L 78 50" />
+              </>
+            ) : (
+              <>
+                <path d="M35 65 L65 35" />
+                <path d="M28 58 C20 50 20 38 28 30 C36 22 48 22 56 30 L70 44 C78 52 78 64 70 72 C62 80 50 80 42 72 L28 58 Z" />
+              </>
+            )}
+          </svg>
+        </div>
+      )}
+      
       {/* gentle reminder */}
       <div className="flex justify-center my-4">
         <div className="box-border border-2 border-dashed border-[#4a654e]/40 w-90 h-52 bg-[#DAF9DB]/30 rounded-3xl">
