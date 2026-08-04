@@ -27,25 +27,47 @@ export function Medications() {
       </h2>
       <div className=" flex justify-center">
         <button
-          className="box-border w-90 h-12 bg-[#4a654e] rounded-4xl my-6 font-medium text-white"
+          className="box-border w-90 h-12 bg-[#4a654e] rounded-4xl mt-6 font-medium text-white"
           onClick={() => {
-           setShowForm(true);
+            setShowForm(true);
           }}
         >
           + Add Medications
         </button>
       </div>
       {showForm && (
-        <div className="flex flex-col items-center gap-4">
-          <input
-            type="text"
-            value={inputTablet}
-            onChange={(e) => setInputTablet(e.target.value)}
-            placeholder="Enter medication name"
-          />
+        <div className="flex flex-col gap-3 px-6">
+          {/* Label */}
+          <p className="text-sm font-medium text-[#3A5340] mt-4 ml-1">
+            Medication Name
+          </p>
+
+          {/* Input dengan ikon */}
+          <div className="relative">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 100 100"
+              fill="none"
+              stroke="#3A5340"
+              strokeWidth="5.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-50"
+            >
+              <path d="M35 65 L65 35" />
+              <path d="M28 58 C20 50 20 38 28 30 C36 22 48 22 56 30 L70 44 C78 52 78 64 70 72 C62 80 50 80 42 72 L28 58 Z" />
+            </svg>
+            <input
+              type="text"
+              value={inputTablet}
+              onChange={(e) => setInputTablet(e.target.value)}
+              placeholder="e.g. Paracetamol, Amoxicillin"
+              className="w-full h-12 my-2 bg-white/40 border border-[#4a654e]/30 rounded-2xl pl-10 pr-4 outline-none text-[16px] text-[#1b1c1a] placeholder:text-[#424842]/40 focus:bg-white/60 focus:border-[#4a654e]/60 shadow-sm transition-all"
+            />
+          </div>
           <button
             onClick={handlebuttonClick}
-            className="box-border w-90 h-12 bg-[#4a654e] rounded-4xl my-6 font-medium text-white"
+            className="w-full h-12 bg-[#4a654e] rounded-4xl mt-1 font-medium text-white"
           >
             Submit
           </button>
@@ -58,7 +80,7 @@ export function Medications() {
             strokeLinecap="round"
             strokeLinejoin="round"
             preserveAspectRatio="xMidYMid meet"
-            className="w-18 h-18 rounded-full bg-[#7B987F]/10 mt-8 mx-auto"
+            className="w-18 h-18 rounded-full bg-[#7B987F]/10 mt-6 mx-auto"
           >
             {isTablet ? (
               <>
@@ -74,7 +96,7 @@ export function Medications() {
           </svg>
         </div>
       )}
-      
+
       {/* gentle reminder */}
       <div className="flex justify-center my-4">
         <div className="box-border border-2 border-dashed border-[#4a654e]/40 w-90 h-52 bg-[#DAF9DB]/30 rounded-3xl">
