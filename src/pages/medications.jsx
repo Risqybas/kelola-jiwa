@@ -1,9 +1,17 @@
 import { useState, useEffect } from "react";
 import bgImage from "../assets/calmPic.jpg";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import {
+  TiWeatherPartlySunny,
+  TiWeatherSunny,
+  TiWeatherNight,
+  TiArrowSortedDown,
+} from "react-icons/ti";
 
 export function Medications() {
   const [inputTablet, setInputTablet] = useState("");
   const [submittedTablet, setSubmittedTablet] = useState("");
+  const [submitFrequency, setSubmitFrequency] = useState("");
   const [showForm, setShowForm] = useState(false);
   const isTablet = submittedTablet.toLowerCase().includes("tablet");
 
@@ -41,59 +49,73 @@ export function Medications() {
           <p className="text-sm font-medium text-[#3A5340] mt-4 ml-1">
             Medication Name
           </p>
-
-          {/* Input dengan ikon */}
           <div className="relative">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 100 100"
-              fill="none"
-              stroke="#3A5340"
-              strokeWidth="5.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-50"
-            >
-              <path d="M35 65 L65 35" />
-              <path d="M28 58 C20 50 20 38 28 30 C36 22 48 22 56 30 L70 44 C78 52 78 64 70 72 C62 80 50 80 42 72 L28 58 Z" />
-            </svg>
             <input
               type="text"
               value={inputTablet}
               onChange={(e) => setInputTablet(e.target.value)}
               placeholder="e.g. Paracetamol, Amoxicillin"
-              className="w-full h-12 my-2 bg-white/40 border border-[#4a654e]/30 rounded-2xl pl-10 pr-4 outline-none text-[16px] text-[#1b1c1a] placeholder:text-[#424842]/40 focus:bg-white/60 focus:border-[#4a654e]/60 shadow-sm transition-all"
+              className="w-full h-12 bg-white/40 border border-[#4a654e]/30 rounded-2xl pl-4 pr-4 outline-none text-[16px] text-[#1b1c1a] placeholder:text-[#424842]/40 focus:bg-white/60 focus:border-[#4a654e]/60 shadow-sm transition-all"
             />
+            <p className="text-sm font-medium text-[#3A5340] mt-4 ml-2">
+              Schedule
+            </p>
+            <div className="text-rig flex items-center">
+              <Menu>
+                <MenuButton className="inline-flex items-center gap-2 rounded-2xl h-12 bg-[#F2F0ED] px-3 py-1.5 text-sm/6 font-semibold text-gray-800 border border-gray-400 shadow-inner shadow-white/10 focus:outline focus:outline-gray-400 data-open:bg-[#F2F0ED]">
+                  Options
+                  <TiArrowSortedDown className="size-4 fill-gray-800" />
+                </MenuButton>
+                <MenuItems
+                  transition
+                  anchor="bottom end"
+                  className="ml-4 z-50 w-52 origin-top-right rounded-xl border border-white/5 bg-white p-1 text-sm/6 shadow-lg text-gray-800 transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0"
+                >
+                  <MenuItem>
+                    <button className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10">
+                      <TiWeatherPartlySunny className="size-6 fill-gray-800" />
+                      Morning
+                      <kbd className="ml-auto hidden font-sans text-xs text-white/50 group-data-focus:inline">
+                        ⌘E
+                      </kbd>
+                    </button>
+                  </MenuItem>
+                  <MenuItem>
+                    <button className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10">
+                      <TiWeatherSunny className="size-6 fill-gray-800" />
+                      Afternoon
+                      <kbd className="ml-auto hidden font-sans text-xs text-white/50 group-data-focus:inline">
+                        ⌘D
+                      </kbd>
+                    </button>
+                  </MenuItem>
+                  <MenuItem>
+                    <button className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10">
+                      <TiWeatherNight className="size-6 fill-gray-800" />
+                      Night
+                      <kbd className="ml-auto hidden font-sans text-xs text-white/50 group-data-focus:inline">
+                        ⌘A
+                      </kbd>
+                    </button>
+                  </MenuItem>
+                </MenuItems>
+              </Menu>
+              <input
+                type="text"
+                value={submitFrequency}
+                onChange={(e) => setSubmitFrequency(e.target.value)}
+                placeholder="e.g. Once daily, etc"
+                className="w-64 h-12 my-2 ml-4 bg-white/40 border border-[#4a654e]/30 rounded-2xl pl-4 pr-4 outline-none text-[16px] text-[#1b1c1a] placeholder:text-[#424842]/40 focus:bg-white/60 focus:border-[#4a654e]/60 shadow-sm transition-all"
+              />
+            </div>
           </div>
+
           <button
             onClick={handlebuttonClick}
             className="w-full h-12 bg-[#4a654e] rounded-4xl mt-1 font-medium text-white"
           >
             Submit
           </button>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 100 100"
-            fill="none"
-            stroke="#3A5340"
-            strokeWidth="5.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            preserveAspectRatio="xMidYMid meet"
-            className="w-18 h-18 rounded-full bg-[#7B987F]/10 mt-6 mx-auto"
-          >
-            {isTablet ? (
-              <>
-                <circle cx="50" cy="50" r="35" />
-                <path d="M 22 50 L 78 50" />
-              </>
-            ) : (
-              <>
-                <path d="M35 65 L65 35" />
-                <path d="M28 58 C20 50 20 38 28 30 C36 22 48 22 56 30 L70 44 C78 52 78 64 70 72 C62 80 50 80 42 72 L28 58 Z" />
-              </>
-            )}
-          </svg>
         </div>
       )}
 
