@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 function Footer() {
     const navigate = useNavigate();
   return (
-    <div className="box-border w-full h-20 bg-[#F5F5F5] sticky bottom-0 flex items-center justify-center">
+    <div className="box-border w-full h-20 bg-[#F5F5F5] fixed bottom-0 flex items-center justify-center">
       <button className="box-border rounded-full px-6 bg-[#F5F5F5] hover:bg-gray-200 transition-colors duration-200 mx-2 flex flex-col items-center justify-center py-2"
       onClick={() => navigate("/mood")}
       >
