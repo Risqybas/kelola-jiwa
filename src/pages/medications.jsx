@@ -12,13 +12,43 @@ export function Medications() {
   const [inputTablet, setInputTablet] = useState("");
   const [submittedTablet, setSubmittedTablet] = useState("");
   const [submitFrequency, setSubmitFrequency] = useState("");
+  const [schedule, setSchedule] = useState("");
+  const [selectedSchedule, setSelectedSchedule] = useState("defaultSchedule");
   const [showForm, setShowForm] = useState(false);
   const isTablet = submittedTablet.toLowerCase().includes("tablet");
+
+  const [selected, setSelected] = useState("Options");
+
+  const menuItems = [
+    {
+      label: "Morning",
+      icon: <TiWeatherPartlySunny className="size-6 fill-gray-800" />,
+      kbd: "⌘E",
+    },
+    {
+      label: "Afternoon",
+      icon: <TiWeatherSunny className="size-6 fill-gray-800" />,
+      kbd: "⌘D",
+    },
+    {
+      label: "Night",
+      icon: <TiWeatherNight className="size-6 fill-gray-800" />,
+      kbd: "⌘A",
+    },
+  ];
 
   const handlebuttonClick = () => {
     setSubmittedTablet(inputTablet);
     setInputTablet("");
     setShowForm(false);
+  };
+
+  const handleScheduleChange = (newSchedule) => {
+    setSelectedSchedule(newSchedule);
+  };
+
+  const handleSaveSchedule = () => {
+    setSchedule(selectedSchedule);
   };
 
   async function handleInputChange(event) {
@@ -57,56 +87,50 @@ export function Medications() {
               placeholder="e.g. Paracetamol, Amoxicillin"
               className="w-full h-12 bg-white/40 border border-[#4a654e]/30 rounded-2xl pl-4 pr-4 outline-none text-[16px] text-[#1b1c1a] placeholder:text-[#424842]/40 focus:bg-white/60 focus:border-[#4a654e]/60 shadow-sm transition-all"
             />
-            <p className="text-sm font-medium text-[#3A5340] mt-4 ml-2">
-              Schedule
-            </p>
-            <div className="text-rig flex items-center">
-              <Menu>
-                <MenuButton className="inline-flex items-center gap-2 rounded-2xl h-12 bg-[#F2F0ED] px-3 py-1.5 text-sm/6 font-semibold text-gray-800 border border-gray-400 shadow-inner shadow-white/10 focus:outline focus:outline-gray-400 data-open:bg-[#F2F0ED]">
-                  Options
-                  <TiArrowSortedDown className="size-4 fill-gray-800" />
-                </MenuButton>
-                <MenuItems
-                  transition
-                  anchor="bottom end"
-                  className="ml-4 z-50 w-52 origin-top-right rounded-xl border border-white/5 bg-white p-1 text-sm/6 shadow-lg text-gray-800 transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0"
-                >
-                  <MenuItem>
-                    <button className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10">
-                      <TiWeatherPartlySunny className="size-6 fill-gray-800" />
-                      Morning
-                      <kbd className="ml-auto hidden font-sans text-xs text-white/50 group-data-focus:inline">
-                        ⌘E
-                      </kbd>
-                    </button>
-                  </MenuItem>
-                  <MenuItem>
-                    <button className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10">
-                      <TiWeatherSunny className="size-6 fill-gray-800" />
-                      Afternoon
-                      <kbd className="ml-auto hidden font-sans text-xs text-white/50 group-data-focus:inline">
-                        ⌘D
-                      </kbd>
-                    </button>
-                  </MenuItem>
-                  <MenuItem>
-                    <button className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10">
-                      <TiWeatherNight className="size-6 fill-gray-800" />
-                      Night
-                      <kbd className="ml-auto hidden font-sans text-xs text-white/50 group-data-focus:inline">
-                        ⌘A
-                      </kbd>
-                    </button>
-                  </MenuItem>
-                </MenuItems>
-              </Menu>
-              <input
-                type="text"
-                value={submitFrequency}
-                onChange={(e) => setSubmitFrequency(e.target.value)}
-                placeholder="e.g. Once daily, etc"
-                className="w-64 h-12 my-2 ml-4 bg-white/40 border border-[#4a654e]/30 rounded-2xl pl-4 pr-4 outline-none text-[16px] text-[#1b1c1a] placeholder:text-[#424842]/40 focus:bg-white/60 focus:border-[#4a654e]/60 shadow-sm transition-all"
-              />
+            <div className="flex items-center">
+              <div className="flex flex-col">
+                <p className="text-sm font-medium text-[#3A5340] mt-2 ml-2 mb-2">
+                  Schedule
+                </p>
+                <Menu>
+                  <MenuButton className="inline-flex items-center gap-2 rounded-2xl h-12 bg-[#F2F0ED] px-3 py-1.5 text-sm/6 font-semibold text-gray-800 border border-gray-400 shadow-inner shadow-white/10 focus:outline focus:outline-gray-400 data-open:bg-[#F2F0ED]">
+                    {selected}
+                    <TiArrowSortedDown className="size-4 fill-gray-800" />
+                  </MenuButton>
+                  <MenuItems
+                    transition
+                    anchor="bottom end"
+                    className="ml-4 z-50 w-52 origin-top-right rounded-xl border border-white/5 bg-white p-1 text-sm/6 shadow-lg text-gray-800 transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0"
+                  >
+                    {menuItems.map(({ label, icon, kbd }) => (
+                      <MenuItem key={label}>
+                        <button
+                          onClick={() => setSelected(label)}
+                          className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10"
+                        >
+                          {icon}
+                          {label}
+                          <kbd className="ml-auto hidden font-sans text-xs text-white/50 group-data-focus:inline">
+                            {kbd}
+                          </kbd>
+                        </button>
+                      </MenuItem>
+                    ))}
+                  </MenuItems>
+                </Menu>
+              </div>
+              <div className="flex flex-col">
+                <p className="text-sm font-medium text-[#3A5340] mt-4 ml-6">
+                  Frequency
+                </p>
+                <input
+                  type="text"
+                  value={submitFrequency}
+                  onChange={(e) => setSubmitFrequency(e.target.value)}
+                  placeholder="e.g. Once daily, etc"
+                  className="w-62 h-12 my-2 ml-4 bg-white/40 border border-[#4a654e]/30 rounded-2xl pl-4 pr-4 outline-none text-[16px] text-[#1b1c1a] placeholder:text-[#424842]/40 focus:bg-white/60 focus:border-[#4a654e]/60 shadow-sm transition-all"
+                />
+              </div>
             </div>
           </div>
 
@@ -116,6 +140,19 @@ export function Medications() {
           >
             Submit
           </button>
+        </div>
+      )}
+      {submittedTablet && (
+        <div className="mt-4 mx-6 p-4  bg-[#DAF9DB]/40 border border-[#4a654e]/40 rounded-2xl">
+          <p className="text-sm font-medium text-[#3A5340]">
+            {schedule || "No schedule provided."}
+          </p>
+          <p className="text-lg font-medium text-[#3A5340]">
+            Submitted Medication: {submittedTablet}
+          </p>
+          <p className="text-sm font-medium text-[#3A5340]">
+            {submitFrequency || "No frequency provided."}
+          </p>
         </div>
       )}
 
