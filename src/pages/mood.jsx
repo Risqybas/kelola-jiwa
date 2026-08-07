@@ -147,7 +147,7 @@ const Mood = () => {
 
   return (
     //top page
-    <div className="page-transition relative bg-[#F5F5F5] min-h-screen">
+    <div className="page-transition relative bg-[#F5F5F5] min-h-screen pb-16">
       <h1 className="text-left text-2xl font-semibold text-gray-900 ml-9 pt-6">
         How are you feeling today?
       </h1>
