@@ -184,7 +184,7 @@ export function Medications() {
                 onClick={() => handleDelete(item.id)}
                 className="text-xs text-red-600 hover:text-red-800 font-medium px-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
               >
-                Hapus
+                Delete
               </button>
             </motion.div>
           ))}
