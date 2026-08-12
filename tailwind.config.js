@@ -1,42 +1,22 @@
 // tailwind.config.js
-module.exports = {
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
     extend: {
-      colors: {
-        primary: {
-          DEFAULT: '#8ba88e',
-          container: '#dce6dd',
-          on: '#ffffff',
+      keyframes: {
+        "pulse-soft": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.02)", opacity: "0.9" },
         },
-        surface: {
-          DEFAULT: '#fbf9f5',
-          dim: '#dbdad6',
-          container: {
-            lowest: '#ffffff',
-            low: '#f5f3ef',
-            DEFAULT: '#efedeb',
-            high: '#e9e7e5',
-            highest: '#e4e2e0',
-          },
-        },
-        secondary: {
-          DEFAULT: '#55624c',
-          container: '#d9e7cb',
-        },
-        error: '#ba1a1a',
-        'error-container': '#f9ebea',
-        'on-error-container': '#410002',
       },
-      fontFamily: {
-        sans: ['Plus Jakarta Sans', 'sans-serif'],
-        headline: ['Plus Jakarta Sans', 'sans-serif'],
-      },
-      borderRadius: {
-        '8': '8px',
-      },
-      boxShadow: {
-        'soft-elevation': '0 20px 20px -5px rgba(74,101,78,0.08)',
+      animation: {
+        "pulse-soft": "pulse-soft 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
     },
   },
-}
+  plugins: [],
+};
