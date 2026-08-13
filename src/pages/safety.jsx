@@ -1,4 +1,5 @@
 import { useState } from "react";
+import risqyImg from "../assets/risqy.png";
 
 const groundingExercises = [
   {
@@ -21,9 +22,9 @@ const groundingExercises = [
 const emergencyContacts = [
   {
     type: "contact",
-    name: "Dr. Sarah Miller",
-    sub: "Psychiatrist • Clinical Care",
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBj2LOeH3AIEjg6-1nMjBRPYyciEByAe_UTQ7OJFXsjERRsBZjwGm1Ka6iB_MkbWQjfIbovR4QTJRDNjCjbkaQ3pe1aqtjiqQuL8oIVB7RrX4SAHNqD_xLzom6irSN98O2ungVmdlIniEXgGvUygB1baSbrkTM413lK4LRqXAYbvqAgMHpoa7IJh0IFkd-fu5Q6NjVKfQGMwuUbIdrqVyAkhd8eHoCYSypGSZqZBQhVQPimveOuTCx4Low-tDlEL7jAJsZci9hD5FjM",
+    name: "Muhammad Risqy",
+    sub: "Developer this app",
+    img: risqyImg,
     avatarBg: "bg-[#d1c5ae]",
   },
   {
@@ -72,26 +73,8 @@ function GroundingCard({ icon, title, desc }) {
 
 export default function Safety() {
   return (
+    <div className="page-transition relative min-h-screen pb-24">
     <div className="bg-[#fbf9f5] text-[#1b1c1a] min-h-screen flex flex-col overflow-x-hidden">
-
-      {/* Top App Bar */}
-      <header className="sticky top-0 z-50 bg-[#fbf9f5] shadow-[0_20px_20px_-5px_rgba(74,101,78,0.08)] flex justify-between items-center px-5 md:px-10 h-16">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#d2e6ed] flex items-center justify-center overflow-hidden">
-            <img
-              className="w-full h-full object-cover"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3UxqZx0-383r28tmHCbwbXonvBpyQLwwlqIKtDvx0PK4nfMdZdOBnicfaqp-tgcbwXv6cPbtGZrvjl2FRACg4_xaljJmj95NMme46z3GRVneYsKBhD63fz0PHWpKBBQMDi04QRtKFCroeGe0WY0ovmxhu8-029pNFzyzCeTUZrCUj0Y8R8iZ3Do7WPde_iweS3s0AGgB-hjVCLHWi_U9Xno405Cvs49QJKozMuyuW_Fx8pV001EzPs0WtoxNIABP3PeZBHo_256Jv"
-              alt="profile"
-            />
-          </div>
-          <h1 className="text-2xl font-semibold text-[#4a654e] font-['Plus_Jakarta_Sans']">
-            Digital Sanctuary
-          </h1>
-        </div>
-        <button className="w-10 h-10 rounded-full flex items-center justify-center text-[#424842] hover:bg-[#8ba88e]/20 transition-colors active:scale-95 duration-200">
-          <span className="material-symbols-outlined">settings</span>
-        </button>
-      </header>
 
       {/* Main */}
       <main className="grow max-w-300 mx-auto w-full px-5 md:px-10 pt-8 pb-32">
@@ -224,34 +207,7 @@ export default function Safety() {
           </div>
         </div>
       </main>
-
-      {/* Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-2 pb-6 bg-[#f5f3ef] shadow-[0_-4px_20px_-5px_rgba(74,101,78,0.08)] z-50 rounded-t-xl">
-        {[
-          { icon: "mood", label: "Tracker", active: false },
-          { icon: "pill", label: "Meds", active: false },
-          { icon: "edit_note", label: "Journal", active: false },
-          { icon: "emergency_share", label: "Safety", active: true },
-        ].map(({ icon, label, active }) => (
-          <a
-            key={label}
-            href="#"
-            className={`flex flex-col items-center justify-center transition-all duration-300 ease-out active:scale-90 ${
-              active
-                ? "bg-[#8ba88e] text-[#233d29] rounded-full px-5 py-1"
-                : "text-[#424842] opacity-70 hover:opacity-100"
-            }`}
-          >
-            <span
-              className="material-symbols-outlined mb-1"
-              style={active ? { fontVariationSettings: "'FILL' 1" } : {}}
-            >
-              {icon}
-            </span>
-            <span className="text-xs font-semibold tracking-wide">{label}</span>
-          </a>
-        ))}
-      </nav>
+    </div>
     </div>
   );
 }

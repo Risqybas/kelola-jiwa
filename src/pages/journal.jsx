@@ -1,15 +1,15 @@
 import { useState, useRef } from "react";
 
 export function Journal() {
+  const [title, setTitle] = useState("");   // +
   const [text, setText] = useState("");
   const [mood, setMood] = useState(null);
   const [showMoodPicker, setShowMoodPicker] = useState(false);
   const [entries, setEntries] = useState([]);
-  const [saveState, setSaveState] = useState("idle"); // idle | saving | saved
+  const [saveState, setSaveState] = useState("idle");
   const [expandedEntry, setExpandedEntry] = useState(null);
   const autosaveTimer = useRef(null);
 
-  // Autosave logic
   const handleTextChange = (e) => {
     setText(e.target.value);
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
@@ -29,12 +29,13 @@ export function Journal() {
     const newEntry = {
       id: Date.now(),
       date: dateLabel,
-      title: firstLine.slice(0, 60),
+      title: title.trim() || firstLine.slice(0, 60),   // +
       body: text,
       mood,
     };
     setEntries([newEntry, ...entries]);
     setText("");
+    setTitle("");   // +
     setMood(null);
     setSaveState("idle");
   };
@@ -59,7 +60,6 @@ export function Journal() {
       style={{ backgroundColor: "#fbf9f5", fontFamily: "'Be Vietnam Pro', sans-serif" }}
     >
       <main className="max-w-300 mx-auto px-5 md:px-10 pt-8">
-        {/* Welcome */}
         <section className="mb-8 text-center">
           <h2
             className="text-4xl sm:text-5xl font-semibold mb-2"
@@ -72,13 +72,24 @@ export function Journal() {
           </p>
         </section>
 
-        {/* Bento Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Journal Canvas */}
           <div
             className="lg:col-span-8 rounded-4xl p-8 relative group shadow-sm"
             style={{ backgroundColor: "#ffffff" }}
           >
+            {/* +++ TITLE INPUT SECTION +++ */}
+            <input
+              type="text"
+              className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-xl font-semibold mb-4 placeholder:font-normal"
+              style={{ color: "#1b1c1a"}}
+              placeholder="Entry title..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              maxLength={80}
+            />
+            <div style={{ borderTop: "1px solid #e4e2de" }} className="mb-4" />
+            {/* +++ END TITLE INPUT SECTION +++ */}
+
             <textarea
               className="w-full min-h-90 bg-transparent border-none focus:outline-none focus:ring-0 resize-none leading-relaxed text-lg"
               style={{ color: "#1b1c1a" }}
@@ -91,8 +102,6 @@ export function Journal() {
               className="flex items-center justify-between mt-6 pt-5"
               style={{ borderTop: "1px solid #e4e2de" }}
             >
-            
-
               <button
                 onClick={handleSave}
                 disabled={!text.trim()}
@@ -103,9 +112,7 @@ export function Journal() {
             </div>
           </div>
 
-          {/* Sidebar */}
           <aside className="lg:col-span-4 space-y-8">
-            {/* Weekly Reflection */}
             <div
               className="rounded-4xl p-6"
               style={{
@@ -136,7 +143,6 @@ export function Journal() {
               </p>
             </div>
 
-            {/* Previous Entries */}
             <div className="space-y-4">
               <div className="flex items-center justify-between px-1">
                 <h3
@@ -159,22 +165,16 @@ export function Journal() {
               {entries.map((entry) => (
                 <div
                   key={entry.id}
-                  onClick={() =>
-                    setExpandedEntry(expandedEntry === entry.id ? null : entry.id)
-                  }
+                  onClick={() => setExpandedEntry(expandedEntry === entry.id ? null : entry.id)}
                   className="rounded-2xl p-4 cursor-pointer transition-colors"
                   style={{
-                    backgroundColor:
-                      expandedEntry === entry.id ? "#eae8e4" : "#efeeea",
+                    backgroundColor: expandedEntry === entry.id ? "#eae8e4" : "#efeeea",
                   }}
                 >
                   <div className="flex justify-between items-start mb-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold" style={{ color: "#4a654e" }}>
-                        {entry.date}
-                      </span>
-                      {entry.mood && <span className="text-sm">{entry.mood}</span>}
-                    </div>
+                    <span className="text-xs font-semibold" style={{ color: "#4a654e" }}>
+                      {entry.date}
+                    </span>
                     <button
                       onClick={(e) => handleDelete(entry.id, e)}
                       className="text-xs font-medium px-2 py-0.5 rounded-full transition-colors hover:bg-red-100 hover:text-red-600"
@@ -185,12 +185,15 @@ export function Journal() {
                     </button>
                   </div>
 
+                  {/* +++ TITLE IN CARD +++ */}
                   <h4
-                    className="text-sm font-semibold mb-1 leading-snug"
+                    className="text-sm font-semibold leading-snug mb-1"
                     style={{ color: "#1b1c1a", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
                   >
                     {entry.title}
                   </h4>
+                  <div style={{ borderTop: "1px solid #d8d6d2" }} className="mb-2" />
+                  {/* +++ END TITLE IN CARD +++ */}
 
                   <p
                     className={`text-sm leading-relaxed transition-all ${
