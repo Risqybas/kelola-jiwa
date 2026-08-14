@@ -166,7 +166,7 @@ export function Medications() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, x: -50, scale: 0.9 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="p-4 bg-[#DAF9DB]/40 border border-[#4a654e]/40 rounded-2xl flex justify-between items-start shadow-sm"
+              className="p-4 bg-[#eae8e4]/40 border border-[#4a654e]/40 rounded-2xl flex justify-between items-start shadow-sm"
             >
               <div>
                 <span className="inline-block px-2.5 py-0.5 mb-1 rounded-full text-xs font-semibold bg-[#4a654e]/10 text-[#3A5340]">
@@ -182,7 +182,7 @@ export function Medications() {
 
               <button
                 onClick={() => handleDelete(item.id)}
-                className="text-xs text-red-600 hover:text-red-800 font-medium px-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
+                className="text-xs text-[#4a654e] hover:text-red-800 font-medium px-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
               >
                 Delete
               </button>

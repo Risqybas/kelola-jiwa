@@ -95,7 +95,7 @@ const Mood = () => {
           </p>
           <p className="text-xs italic text-center my-2">Start journaling?</p>
           <button onClick={() => 
-            navigate("/safety")}
+            navigate("/journal")}
             className="flex flex-col box-border text-white font-semibold bg-[#4a654e] rounded-2xl items-center justify-center text-center w-auto h-auto px-4 py-2 mt-2 mb-6 mx-auto"
             >Click to journal</button>
         </div>

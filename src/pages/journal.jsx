@@ -1,14 +1,15 @@
 import { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function Journal() {
-  const [title, setTitle] = useState("");   // +
+  const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [mood, setMood] = useState(null);
-  const [showMoodPicker, setShowMoodPicker] = useState(false);
   const [entries, setEntries] = useState([]);
   const [saveState, setSaveState] = useState("idle");
   const [expandedEntry, setExpandedEntry] = useState(null);
   const autosaveTimer = useRef(null);
+  const entriesRef = useRef(null); // +
 
   const handleTextChange = (e) => {
     setText(e.target.value);
@@ -29,15 +30,20 @@ export function Journal() {
     const newEntry = {
       id: Date.now(),
       date: dateLabel,
-      title: title.trim() || firstLine.slice(0, 60),   // +
+      title: title.trim() || firstLine.slice(0, 60),
       body: text,
       mood,
     };
     setEntries([newEntry, ...entries]);
     setText("");
-    setTitle("");   // +
+    setTitle("");
     setMood(null);
     setSaveState("idle");
+
+    // Scroll ke entries setelah entry ditambah +
+    setTimeout(() => {
+      entriesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   };
 
   const handleDelete = (id, e) => {
@@ -77,18 +83,16 @@ export function Journal() {
             className="lg:col-span-8 rounded-4xl p-8 relative group shadow-sm"
             style={{ backgroundColor: "#ffffff" }}
           >
-            {/* +++ TITLE INPUT SECTION +++ */}
             <input
               type="text"
               className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-xl font-semibold mb-4 placeholder:font-normal"
-              style={{ color: "#1b1c1a"}}
+              style={{ color: "#1b1c1a" }}
               placeholder="Entry title..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={80}
             />
             <div style={{ borderTop: "1px solid #e4e2de" }} className="mb-4" />
-            {/* +++ END TITLE INPUT SECTION +++ */}
 
             <textarea
               className="w-full min-h-90 bg-transparent border-none focus:outline-none focus:ring-0 resize-none leading-relaxed text-lg"
@@ -143,7 +147,8 @@ export function Journal() {
               </p>
             </div>
 
-            <div className="space-y-4">
+            {/* Ref dipasang di sini + */}
+            <div className="space-y-4" ref={entriesRef}>
               <div className="flex items-center justify-between px-1">
                 <h3
                   className="text-xs font-semibold uppercase tracking-widest"
@@ -162,55 +167,59 @@ export function Journal() {
                 </p>
               )}
 
-              {entries.map((entry) => (
-                <div
-                  key={entry.id}
-                  onClick={() => setExpandedEntry(expandedEntry === entry.id ? null : entry.id)}
-                  className="rounded-2xl p-4 cursor-pointer transition-colors"
-                  style={{
-                    backgroundColor: expandedEntry === entry.id ? "#eae8e4" : "#efeeea",
-                  }}
-                >
-                  <div className="flex justify-between items-start mb-1">
-                    <span className="text-xs font-semibold" style={{ color: "#4a654e" }}>
-                      {entry.date}
-                    </span>
-                    <button
-                      onClick={(e) => handleDelete(entry.id, e)}
-                      className="text-xs font-medium px-2 py-0.5 rounded-full transition-colors hover:bg-red-100 hover:text-red-600"
-                      style={{ color: "#737972" }}
-                      aria-label="Delete entry"
+              <AnimatePresence initial={false}>
+                {entries.map((entry) => (
+                  <motion.div
+                    key={entry.id}
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -50, scale: 0.9 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    onClick={() => setExpandedEntry(expandedEntry === entry.id ? null : entry.id)}
+                    className="rounded-2xl p-4 cursor-pointer transition-colors"
+                    style={{
+                      backgroundColor: expandedEntry === entry.id ? "#eae8e4" : "#efeeea",
+                    }}
+                  >
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="text-xs font-semibold" style={{ color: "#4a654e" }}>
+                        {entry.date}
+                      </span>
+                      <button
+                        onClick={(e) => handleDelete(entry.id, e)}
+                        className="text-xs font-medium px-2 py-0.5 rounded-full transition-colors hover:bg-red-100 hover:text-red-600"
+                        style={{ color: "#737972" }}
+                        aria-label="Delete entry"
+                      >
+                        delete
+                      </button>
+                    </div>
+
+                    <h4
+                      className="text-sm font-semibold leading-snug mb-1"
+                      style={{ color: "#1b1c1a", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
                     >
-                      delete
-                    </button>
-                  </div>
+                      {entry.title}
+                    </h4>
+                    <div style={{ borderTop: "1px solid #d8d6d2" }} className="mb-2" />
 
-                  {/* +++ TITLE IN CARD +++ */}
-                  <h4
-                    className="text-sm font-semibold leading-snug mb-1"
-                    style={{ color: "#1b1c1a", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-                  >
-                    {entry.title}
-                  </h4>
-                  <div style={{ borderTop: "1px solid #d8d6d2" }} className="mb-2" />
-                  {/* +++ END TITLE IN CARD +++ */}
+                    <p
+                      className={`text-sm leading-relaxed transition-all ${
+                        expandedEntry === entry.id ? "" : "line-clamp-2"
+                      }`}
+                      style={{ color: "#424842" }}
+                    >
+                      {entry.body}
+                    </p>
 
-                  <p
-                    className={`text-sm leading-relaxed transition-all ${
-                      expandedEntry === entry.id ? "" : "line-clamp-2"
-                    }`}
-                    style={{ color: "#424842" }}
-                  >
-                    {entry.body}
-                  </p>
-
-                  {entry.body.length > 120 && (
-                    <span className="text-xs mt-1 block" style={{ color: "#4a654e" }}>
-                      {expandedEntry === entry.id ? "Show less ↑" : "Read more ↓"}
-                    </span>
-                  )}
-                </div>
-              ))}
+                    {entry.body.length > 120 && (
+                      <span className="text-xs mt-1 block" style={{ color: "#4a654e" }}>
+                        {expandedEntry === entry.id ? "Show less ↑" : "Read more ↓"}
+                      </span>
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           </aside>
         </div>
