@@ -81,7 +81,7 @@ App runs at `http://localhost:5173` (Vite default) or `http://localhost:3000`.
 
 - [x] Project setup & Tailwind configuration
 - [x] Mood tracker UI components
-- [ ] Journaling module with rich text support
+- [x] Journaling module with rich text support
 - [ ] Mood chart & data visualization
 - [ ] Node.js backend & REST API
 - [ ] User authentication

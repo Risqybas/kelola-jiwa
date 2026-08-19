@@ -1,15 +1,105 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const MOODS = [
+  { value: "happy",   score: 100, color: "#4a654e" },
+  { value: "stable",  score: 66,  color: "#7aab7e" },
+  { value: "low",     score: 43,  color: "#c9b96a" },
+  { value: "anxious", score: 10,  color: "#d4826e" },
+];
+
+const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function getMoodConfig(moodValue) {
+  return MOODS.find((m) => m.value === moodValue) || null;
+}
+
+/**
+ * Aggregates entries into past 7 days bar data.
+ * TODO (API): replace with GET /api/journal/weekly-summary
+ */
+function buildWeekBars(entries) {
+  const today = new Date();
+  const bars = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const dateLabel = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+    const dayEntries = entries.filter((e) => e.date === dateLabel && e.moodScore !== null);
+
+    if (dayEntries.length === 0) {
+      bars.push({ score: null, color: "rgba(74,101,78,0.15)" });
+    } else {
+      const avgScore = Math.round(
+        dayEntries.reduce((s, e) => s + e.moodScore, 0) / dayEntries.length
+      );
+      let color = "#4a654e";
+      if (avgScore < 20)      color = "#d4826e";
+      else if (avgScore < 55) color = "#c9b96a";
+      else if (avgScore < 85) color = "#7aab7e";
+      bars.push({ score: avgScore, color });
+    }
+  }
+
+  return bars;
+}
+
+// ─── WeekChart ────────────────────────────────────────────────────────────────
+
+function WeekChart({ bars }) {
+  return (
+    <div
+      className="rounded-4xl px-5 py-4"
+      style={{
+        backgroundColor: "rgba(204,234,206,0.2)",
+        border: "1px solid rgba(204,234,206,0.4)",
+      }}
+    >
+      <div className="flex items-end justify-between h-16 gap-1.5">
+        {bars.map((bar, i) => {
+          const heightPct = bar.score !== null ? Math.max(bar.score, 10) : 10;
+          return (
+            <motion.div
+              key={i}
+              className="flex-1 rounded-t-md"
+              initial={{ height: 0 }}
+              animate={{ height: `${(heightPct / 100) * 64}px` }}
+              transition={{ duration: 0.45, ease: "easeOut", delay: i * 0.04 }}
+              style={{
+                backgroundColor: bar.color,
+                opacity: bar.score === null ? 0.4 : 1,
+                alignSelf: "flex-end",
+              }}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+// nanti pelajarin fetch data dari API untuk menampilkan data mood dan journal entries.
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 export function Journal() {
-  const [title, setTitle] = useState("");
-  const [text, setText] = useState("");
-  const [mood, setMood] = useState(null);
-  const [entries, setEntries] = useState([]);
-  const [saveState, setSaveState] = useState("idle");
+  const [title, setTitle]               = useState("");
+  const [text, setText]                 = useState("");
+  const [entries, setEntries]           = useState([]);
+  const [saveState, setSaveState]       = useState("idle");
   const [expandedEntry, setExpandedEntry] = useState(null);
   const autosaveTimer = useRef(null);
-  const entriesRef = useRef(null); // +
+  const entriesRef    = useRef(null);
+
+  // mood & moodScore diambil dari halaman Mood, di-pass via props / global state
+  // untuk sementara diterima sebagai prop; default null
+  // contoh integrasi: <Journal currentMood="stable" currentMoodScore={66} />
+  const currentMood      = null; // ganti dengan props.currentMood atau context
+  const currentMoodScore = null; // ganti dengan props.currentMoodScore atau context
 
   const handleTextChange = (e) => {
     setText(e.target.value);
@@ -27,20 +117,25 @@ export function Journal() {
     const now = new Date();
     const dateLabel = now.toLocaleDateString("en-US", { month: "short", day: "numeric" });
     const firstLine = text.split("\n").find((l) => l.trim()) || "Untitled";
+
     const newEntry = {
       id: Date.now(),
       date: dateLabel,
       title: title.trim() || firstLine.slice(0, 60),
       body: text,
-      mood,
+      mood: currentMood,
+      moodScore: currentMoodScore,
     };
-    setEntries([newEntry, ...entries]);
+
+    /**
+     * TODO (API): POST /api/journal/entries
+     * { title, body, mood, mood_score }
+     */
+    setEntries((prev) => [newEntry, ...prev]);
     setText("");
     setTitle("");
-    setMood(null);
     setSaveState("idle");
 
-    // Scroll ke entries setelah entry ditambah +
     setTimeout(() => {
       entriesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
@@ -48,7 +143,10 @@ export function Journal() {
 
   const handleDelete = (id, e) => {
     e.stopPropagation();
-    setEntries(entries.filter((en) => en.id !== id));
+    /**
+     * TODO (API): DELETE /api/journal/entries/:id
+     */
+    setEntries((prev) => prev.filter((en) => en.id !== id));
     if (expandedEntry === id) setExpandedEntry(null);
   };
 
@@ -59,6 +157,8 @@ export function Journal() {
     saveState === "saved"
       ? "bg-[#cceace] text-[#233d29]"
       : "bg-[#4a654e] text-white hover:bg-[#3d5541]";
+
+  const weekBars = buildWeekBars(entries);
 
   return (
     <div
@@ -79,8 +179,9 @@ export function Journal() {
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* ── Editor ── */}
           <div
-            className="lg:col-span-8 rounded-4xl p-8 relative group shadow-sm"
+            className="lg:col-span-8 rounded-4xl p-8 shadow-sm"
             style={{ backgroundColor: "#ffffff" }}
           >
             <input
@@ -103,7 +204,7 @@ export function Journal() {
             />
 
             <div
-              className="flex items-center justify-between mt-6 pt-5"
+              className="flex items-center justify-end mt-6 pt-5"
               style={{ borderTop: "1px solid #e4e2de" }}
             >
               <button
@@ -116,38 +217,12 @@ export function Journal() {
             </div>
           </div>
 
-          <aside className="lg:col-span-4 space-y-8">
-            <div
-              className="rounded-4xl p-6"
-              style={{
-                backgroundColor: "rgba(204,234,206,0.2)",
-                border: "1px solid rgba(204,234,206,0.4)",
-              }}
-            >
-              <h3
-                className="text-lg font-semibold mb-4"
-                style={{ color: "#233d29", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-              >
-                Past 7 Days
-              </h3>
-              <div className="flex items-end justify-between h-24 gap-2 mb-4">
-                {[50, 75, 100, 66, 50, 33, 50].map((h, i) => (
-                  <div
-                    key={i}
-                    className={`w-full rounded-t-lg ${i === 2 ? "animate-pulse" : ""}`}
-                    style={{
-                      height: `${h}%`,
-                      backgroundColor: i === 2 ? "#4a654e" : "rgba(74,101,78,0.4)",
-                    }}
-                  />
-                ))}
-              </div>
-              <p className="text-xs font-semibold text-center" style={{ color: "#233d29" }}>
-                Consistent reflection helps stability.
-              </p>
-            </div>
+          {/* ── Sidebar ── */}
+          <aside className="lg:col-span-4 space-y-6">
+            {/* Compact week chart — bar + warna saja */}
+            <WeekChart bars={weekBars} />
 
-            {/* Ref dipasang di sini + */}
+            {/* Previous entries */}
             <div className="space-y-4" ref={entriesRef}>
               <div className="flex items-center justify-between px-1">
                 <h3
@@ -168,57 +243,74 @@ export function Journal() {
               )}
 
               <AnimatePresence initial={false}>
-                {entries.map((entry) => (
-                  <motion.div
-                    key={entry.id}
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, x: -50, scale: 0.9 }}
-                    transition={{ duration: 0.25, ease: "easeOut" }}
-                    onClick={() => setExpandedEntry(expandedEntry === entry.id ? null : entry.id)}
-                    className="rounded-2xl p-4 cursor-pointer transition-colors"
-                    style={{
-                      backgroundColor: expandedEntry === entry.id ? "#eae8e4" : "#efeeea",
-                    }}
-                  >
-                    <div className="flex justify-between items-start mb-1">
-                      <span className="text-xs font-semibold" style={{ color: "#4a654e" }}>
-                        {entry.date}
-                      </span>
-                      <button
-                        onClick={(e) => handleDelete(entry.id, e)}
-                        className="text-xs font-medium px-2 py-0.5 rounded-full transition-colors hover:bg-red-100 hover:text-red-600"
-                        style={{ color: "#737972" }}
-                        aria-label="Delete entry"
+                {entries.map((entry) => {
+                  const mc = getMoodConfig(entry.mood);
+                  return (
+                    <motion.div
+                      key={entry.id}
+                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, x: -50, scale: 0.9 }}
+                      transition={{ duration: 0.25, ease: "easeOut" }}
+                      onClick={() =>
+                        setExpandedEntry(expandedEntry === entry.id ? null : entry.id)
+                      }
+                      className="rounded-2xl p-4 cursor-pointer transition-colors"
+                      style={{
+                        backgroundColor: expandedEntry === entry.id ? "#eae8e4" : "#efeeea",
+                      }}
+                    >
+                      <div className="flex justify-between items-start mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold" style={{ color: "#4a654e" }}>
+                            {entry.date}
+                          </span>
+                          {mc && (
+                            <span
+                              className="w-2 h-2 rounded-full inline-block"
+                              style={{ backgroundColor: mc.color }}
+                              title={entry.mood}
+                            />
+                          )}
+                        </div>
+                        <button
+                          onClick={(e) => handleDelete(entry.id, e)}
+                          className="text-xs font-medium px-2 py-0.5 rounded-full transition-colors hover:bg-red-100 hover:text-red-600"
+                          style={{ color: "#737972" }}
+                          aria-label="Delete entry"
+                        >
+                          delete
+                        </button>
+                      </div>
+
+                      <h4
+                        className="text-sm font-semibold leading-snug mb-1"
+                        style={{
+                          color: "#1b1c1a",
+                          fontFamily: "'Plus Jakarta Sans', sans-serif",
+                        }}
                       >
-                        delete
-                      </button>
-                    </div>
+                        {entry.title}
+                      </h4>
+                      <div style={{ borderTop: "1px solid #d8d6d2" }} className="mb-2" />
 
-                    <h4
-                      className="text-sm font-semibold leading-snug mb-1"
-                      style={{ color: "#1b1c1a", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-                    >
-                      {entry.title}
-                    </h4>
-                    <div style={{ borderTop: "1px solid #d8d6d2" }} className="mb-2" />
+                      <p
+                        className={`text-sm leading-relaxed transition-all ${
+                          expandedEntry === entry.id ? "" : "line-clamp-2"
+                        }`}
+                        style={{ color: "#424842" }}
+                      >
+                        {entry.body}
+                      </p>
 
-                    <p
-                      className={`text-sm leading-relaxed transition-all ${
-                        expandedEntry === entry.id ? "" : "line-clamp-2"
-                      }`}
-                      style={{ color: "#424842" }}
-                    >
-                      {entry.body}
-                    </p>
-
-                    {entry.body.length > 120 && (
-                      <span className="text-xs mt-1 block" style={{ color: "#4a654e" }}>
-                        {expandedEntry === entry.id ? "Show less ↑" : "Read more ↓"}
-                      </span>
-                    )}
-                  </motion.div>
-                ))}
+                      {entry.body.length > 120 && (
+                        <span className="text-xs mt-1 block" style={{ color: "#4a654e" }}>
+                          {expandedEntry === entry.id ? "Show less ↑" : "Read more ↓"}
+                        </span>
+                      )}
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             </div>
           </aside>
