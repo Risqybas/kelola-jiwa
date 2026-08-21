@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import bgImage from "../assets/naturePic.jpg";
 
 async function submitForm(answer) {
-  const response = await fetch("https://api.yourbackend.com/gratitude", {
+  const response = await fetch("http://localhost:5000/gratitude", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ answer, date: new Date().toISOString() }),
   });
   if (!response.ok) throw new Error("Gagal menyimpan gratitude");
-} //need to understand
+}
 
 const Mood = () => {
   const [mood, setMood] = useState("");
@@ -114,7 +114,7 @@ const Mood = () => {
 
   const [summaryData, setSummaryData] = useState(null);
   useEffect(() => {
-    fetch("https://api.yourbackend.com/daily-summary")
+    fetch("http://localhost:5000/daily-summary")
       .then((res) => {
         if (!res.ok) throw new Error("Gagal fetch");
         return res.json();
@@ -130,10 +130,10 @@ const Mood = () => {
   async function handleSubmit() {
     setStatus("submitting");
     try {
-      // await submitForm(answer);
+      await submitForm(answer);
       setStatus("success");
       setSubmitGratitude(answer)
-      console.log(submitGratitude)
+      console.log(answer)
     } catch (err) {
       setStatus("typing");
       setError(err);
@@ -339,7 +339,7 @@ const Mood = () => {
               <span className="text-sm text-gray-500">Mood</span>
             </div>
             <span className="text-sm font-semibold text-gray-700 capitalize">
-              {mood || "—"}
+              {summaryData?.mood || "—"}
             </span>
           </div>
 
@@ -354,7 +354,7 @@ const Mood = () => {
               <span className="text-sm text-gray-500">Sleep</span>
             </div>
             <span className="text-sm font-semibold text-gray-700">
-              {Math.floor(sleepDuration / 60)}h {sleepDuration % 60}m
+              {summaryData?.sleep || "—"}
             </span>
           </div>
 
@@ -370,7 +370,7 @@ const Mood = () => {
               <span className="text-sm text-gray-500">Note</span>
             </div>
             <span className="text-sm font-semibold text-gray-700 text-right line-clamp-2">
-              {submitGratitude || "—"}
+              {summaryData?.note || "—"}
             </span>
           </div>
         </div>
