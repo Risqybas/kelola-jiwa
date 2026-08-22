@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import bgImage from "../assets/naturePic.jpg";
 
-async function submitForm(answer) {
+async function submitGratitudeApi(answer) {
   const response = await fetch("http://localhost:5000/gratitude", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -17,43 +17,74 @@ const Mood = () => {
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("typing");
   const navigate = useNavigate();
-  const [sleepHours, setSleepHours] = useState(8);
-  const [sleepMinutes, setSleepMinutes] = useState(0);
+  const [sleepDuration, setSleepDuration] = useState(480);
+  const [summaryData, setSummaryData] = useState(null);
+  const [submitGratitude, setSubmitGratitude] = useState("");
 
   const gratitudeSentenceRef = useRef(null);
   const safetySectionRef = useRef(null);
-  useEffect(() => {
-  if (mood === "calm") {
-    gratitudeSentenceRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-  } else if (mood === "anxious") {
-    gratitudeSentenceRef.current?.scrollIntoView({ behavior: "smooth", block: "center"});
-  } else if (mood === "stable") {
-    gratitudeSentenceRef.current?.scrollIntoView({ behavior: "smooth", block: "center"});
-  } else {
-    gratitudeSentenceRef.current?.scrollIntoView({ behavior: "smooth", block: "center"});
-  }
-  }, [mood]);
 
-  const renderContent = () => {    
+  const today = new Date();
+
+  async function saveSleepDuration(value) {
+    try {
+      const response = await fetch("http://localhost:5000/rest-duration", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sleepDuration: value }),
+      });
+      if (!response.ok) throw new Error("Gagal menyimpan durasi");
+    } catch (err) {
+      console.error("sleep save error", err);
+    }
+  }
+
+  async function handleSubmit() {
+    setStatus("submitting");
+    try {
+      await submitGratitudeApi(answer);
+      setStatus("success");
+      setSubmitGratitude(answer);
+
+      // Fetch summary SETELAH semua data tersimpan
+      const res = await fetch("http://localhost:5000/daily-summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mood }),
+      });
+      if (!res.ok) throw new Error("Gagal fetch summary");
+      const data = await res.json();
+      setSummaryData(data);
+    } catch (err) {
+      setStatus("typing");
+      setError(err);
+    }
+  }
+  function handleTextAreaChange(e) {
+    setAnswer(e.target.value);
+  }
+
+  const renderContent = () => {
     if (mood === "calm") {
       return (
-        <div> 
+        <div>
           <p ref={gratitudeSentenceRef} className="text-center italic px-4">
             "Wonderful to hear. Enjoy this peaceful moment and let your mind
             rest."
           </p>
-          <p className="text-xs italic text-center my-2">What is one thing that felt good today?</p>
+          <p className="text-xs italic text-center my-2">
+            What is one thing that felt good today?
+          </p>
           <button
-            onClick={() => {
-              safetySectionRef.current?.scrollIntoView({ behavior: "smooth" });
-            }}
-          className="flex flex-col box-border text-white font-semibold bg-[#4a654e] rounded-2xl items-center justify-center text-center w-auto h-auto px-4 py-2 mt-2 mb-6 mx-auto"
+            onClick={() =>
+              safetySectionRef.current?.scrollIntoView({ behavior: "smooth" })
+            }
+            className="flex flex-col box-border text-white font-semibold bg-[#4a654e] rounded-2xl items-center justify-center text-center w-auto h-auto px-4 py-2 mt-2 mb-6 mx-auto"
           >
             Express your feeling
           </button>
         </div>
       );
-    
     } else if (mood === "anxious") {
       return (
         <div>
@@ -61,9 +92,10 @@ const Mood = () => {
             "Take a slow, deep breath. Slow down—you don't have to figure
             everything out all at once"
           </p>
-          <p></p>
-          <button onClick={() => navigate("/safety")}
-            className="flex flex-col box-border text-white font-semibold bg-[#B22222] rounded-2xl items-center justify-center text-center w-auto h-auto px-4 py-2 mt-2 mb-6 mx-auto">
+          <button
+            onClick={() => navigate("/safety")}
+            className="flex flex-col box-border text-white font-semibold bg-[#B22222] rounded-2xl items-center justify-center text-center w-auto h-auto px-4 py-2 mt-2 mb-6 mx-auto"
+          >
             Let's do some exercise
           </button>
         </div>
@@ -75,11 +107,13 @@ const Mood = () => {
             "A great sense of balance. Keep your steady rhythm and move through
             today at your own pace"
           </p>
-          <p className="text-xs italic text-center my-2">Today’s little blessing:</p>
+          <p className="text-xs italic text-center my-2">
+            Today's little blessing:
+          </p>
           <button
-            onClick={() => {
-              safetySectionRef.current?.scrollIntoView({ behavior: "smooth" });
-            }}
+            onClick={() =>
+              safetySectionRef.current?.scrollIntoView({ behavior: "smooth" })
+            }
             className="flex flex-col box-border text-white font-semibold bg-[#4a654e] rounded-2xl items-center justify-center text-center w-auto h-auto px-4 py-2 mt-2 mb-6 mx-auto"
           >
             Express Gratitude
@@ -94,56 +128,16 @@ const Mood = () => {
             it's completely fine to just rest"
           </p>
           <p className="text-xs italic text-center my-2">Start journaling?</p>
-          <button onClick={() => 
-            navigate("/journal")}
+          <button
+            onClick={() => navigate("/journal")}
             className="flex flex-col box-border text-white font-semibold bg-[#4a654e] rounded-2xl items-center justify-center text-center w-auto h-auto px-4 py-2 mt-2 mb-6 mx-auto"
-            >Click to journal</button>
+          >
+            Click to journal
+          </button>
         </div>
       );
     }
   };
-  function handleHoursChange(val) {
-  setSleepHours(Math.min(12, Math.max(0, Number(val))));
-  }
-
-  function handleMinutesChange(val) {
-    setSleepMinutes(Math.min(59, Math.max(0, Number(val))));
-  }
-  const [sleepDuration, setSleepDuration] = useState(480);
-  const today = new Date();
-
-  const [summaryData, setSummaryData] = useState(null);
-  useEffect(() => {
-    fetch("http://localhost:5000/daily-summary")
-      .then((res) => {
-        if (!res.ok) throw new Error("Gagal fetch");
-        return res.json();
-      })
-      .then((data) => setSummaryData(data))
-      .catch((err) => {
-        console.error("Gagal mengambil data summary:", err);
-        setSummaryData({ mood: "-", sleep: "-", note: "Data tidak tersedia" }); // fallback
-      });
-  }, []); //need to understand
-
-  const [submitGratitude, setSubmitGratitude] = useState("");
-  async function handleSubmit() {
-    setStatus("submitting");
-    try {
-      await submitForm(answer);
-      setStatus("success");
-      setSubmitGratitude(answer)
-      console.log(answer)
-    } catch (err) {
-      setStatus("typing");
-      setError(err);
-    }
-  }
-  
-  function handleTextAreaChange(e) {
-    setAnswer(e.target.value);
-  }
-
 
   return (
     //top page
@@ -159,9 +153,14 @@ const Mood = () => {
           <div>
             {/* button mood track */}
             <button
-              onClick={() => {gratitudeSentenceRef.current?.scrollIntoView({ behavior: "smooth"}); setMood("calm")}}
+              onClick={() => {
+                gratitudeSentenceRef.current?.scrollIntoView({
+                  behavior: "smooth",
+                });
+                setMood("calm");
+              }}
               className="flex flex-col items-center justify-center box-border w-40 h-36 bg-[#EBE9E4] rounded-3xl"
-              >
+            >
               {/* cloud */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -243,7 +242,7 @@ const Mood = () => {
       </div>
       {renderContent()}
 
-      <div className="box border border-gray-300/40 size-84 rounded-4xl mx-auto bg-[#EBE9E4] corner"> 
+      <div className="box border border-gray-300/40 size-84 rounded-4xl mx-auto bg-[#EBE9E4] corner">
         <div className="flex justify-between items-start px-6 pt-6">
           <div>
             <h1 className="text-left text-2xl ml-2">Sleep History</h1>
@@ -275,6 +274,8 @@ const Mood = () => {
             max="720"
             step="1"
             onChange={(e) => setSleepDuration(Number(e.target.value) || 0)}
+            onMouseUp={(e) => saveSleepDuration(Number(e.target.value) || 0)}
+            onTouchEnd={(e) => saveSleepDuration(Number(e.target.value) || 0)}
             value={sleepDuration}
             className="w-full h-4 bg-[#E0F4FC] rounded-lg appearance-none cursor-pointer
             [&::-webkit-slider-thumb]:appearance-none 
@@ -310,7 +311,9 @@ const Mood = () => {
       <div className="box w-84 h-86 rounded-4xl border-gray-300 mx-auto bg-[#EBE9E4] corner mt-8 overflow-hidden pb-6">
         <div className="flex justify-between items-start px-6 pt-8">
           <div>
-            <h1 className="text-2xl font-medium text-gray-700">Daily Summary</h1>
+            <h1 className="text-2xl font-medium text-gray-700">
+              Daily Summary
+            </h1>
             <h3 className="text-sm text-gray-500 mt-1">
               {today.toLocaleDateString("en-US", {
                 weekday: "long",
@@ -321,8 +324,19 @@ const Mood = () => {
             </h3>
           </div>
           <div className="bg-white flex items-center justify-center p-3 border border-gray-200 rounded-2xl">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+              />
             </svg>
           </div>
         </div>
@@ -332,7 +346,16 @@ const Mood = () => {
           <div className="bg-white/60 rounded-2xl px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-[#D2E6ED] flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-7 5 26 24" fill="none" stroke="#3A5340" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="-7 5 26 24"
+                  fill="none"
+                  stroke="#3A5340"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-4 h-4"
+                >
                   <path d="M11 17a2.5 2.5 0 0 0-4-2 5 5 0 0 0-8.5 3.5 3 3 0 0 0 3 3h9.5a2.5 2.5 0 0 0 0-5Z" />
                 </svg>
               </div>
@@ -347,14 +370,25 @@ const Mood = () => {
           <div className="bg-white/60 rounded-2xl px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-[#EDE1C9] flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 0 26 24" fill="none" stroke="#3A5340" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="-2 0 26 24"
+                  fill="none"
+                  stroke="#3A5340"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-4 h-4"
+                >
                   <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
                 </svg>
               </div>
               <span className="text-sm text-gray-500">Sleep</span>
             </div>
             <span className="text-sm font-semibold text-gray-700">
-              {summaryData?.sleep || "—"}
+              {summaryData?.sleep !== undefined
+                ? `${Math.floor(summaryData.sleep / 60)}h ${summaryData.sleep % 60}m`
+                : "—"}
             </span>
           </div>
 
@@ -362,7 +396,16 @@ const Mood = () => {
           <div className="bg-white/60 rounded-2xl px-4 py-3 flex items-start justify-between gap-4">
             <div className="flex items-center gap-3 shrink-0">
               <div className="w-8 h-8 rounded-full bg-[#CCEACE] flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 0 26 24" fill="none" stroke="#3A5340" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="-2 0 26 24"
+                  fill="none"
+                  stroke="#3A5340"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-4 h-4"
+                >
                   <path d="M15 6L18 9L9 18H6V15L15 6Z" />
                   <path d="M13 8L16 11" />
                 </svg>
@@ -385,23 +428,23 @@ const Mood = () => {
             </h1>
           </div>
           <div className="bg-white flex justify-between p-2 border border-gray-200 rounded-2xl  mt-5 mr-5">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="-2 0 26 24"
-            fill="none"
-            stroke="#3A5340"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="w-7 h-7 shrink-0"
-          >
-            {/* Badan pensil */}
-            <path d="M15 6L18 9L9 18H6V15L15 6Z" />
-            {/* Garis pemisah ujung pensil */}
-            <path d="M13 8L16 11" />
-            {/* Ujung pensil (tip) */}
-            <path d="M6 15L9 18" />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="-2 0 26 24"
+              fill="none"
+              stroke="#3A5340"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-7 h-7 shrink-0"
+            >
+              {/* Badan pensil */}
+              <path d="M15 6L18 9L9 18H6V15L15 6Z" />
+              {/* Garis pemisah ujung pensil */}
+              <path d="M13 8L16 11" />
+              {/* Ujung pensil (tip) */}
+              <path d="M6 15L9 18" />
+            </svg>
           </div>
         </div>
         <div ref={safetySectionRef} className="space-y-4">
