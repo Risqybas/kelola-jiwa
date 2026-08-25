@@ -1,13 +1,13 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const MOODS = [
-  { value: "happy",   score: 100, color: "#4a654e" },
-  { value: "stable",  score: 66,  color: "#7aab7e" },
-  { value: "low",     score: 43,  color: "#c9b96a" },
-  { value: "anxious", score: 10,  color: "#d4826e" },
+  { value: "happy", score: 100, color: "#4a654e" },
+  { value: "stable", score: 66, color: "#7aab7e" },
+  { value: "low", score: 43, color: "#c9b96a" },
+  { value: "anxious", score: 10, color: "#d4826e" },
 ];
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -29,18 +29,23 @@ function buildWeekBars(entries) {
   for (let i = 6; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
-    const dateLabel = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const dateLabel = d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
 
-    const dayEntries = entries.filter((e) => e.date === dateLabel && e.moodScore !== null);
+    const dayEntries = entries.filter(
+      (e) => e.date === dateLabel && e.moodScore !== null,
+    );
 
     if (dayEntries.length === 0) {
       bars.push({ score: null, color: "rgba(74,101,78,0.15)" });
     } else {
       const avgScore = Math.round(
-        dayEntries.reduce((s, e) => s + e.moodScore, 0) / dayEntries.length
+        dayEntries.reduce((s, e) => s + e.moodScore, 0) / dayEntries.length,
       );
       let color = "#4a654e";
-      if (avgScore < 20)      color = "#d4826e";
+      if (avgScore < 20) color = "#d4826e";
       else if (avgScore < 55) color = "#c9b96a";
       else if (avgScore < 85) color = "#7aab7e";
       bars.push({ score: avgScore, color });
@@ -83,22 +88,36 @@ function WeekChart({ bars }) {
     </div>
   );
 }
-// nanti pelajarin fetch data dari API untuk menampilkan data mood dan journal entries.
+// nanti pelajarin fetch data dari API untuk menampilkan data mood
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function Journal() {
-  const [title, setTitle]               = useState("");
-  const [text, setText]                 = useState("");
-  const [entries, setEntries]           = useState([]);
-  const [saveState, setSaveState]       = useState("idle");
+  const [title, setTitle] = useState("");
+  const [text, setText] = useState("");
+  const [entries, setEntries] = useState([]);
+  const [saveState, setSaveState] = useState("idle");
   const [expandedEntry, setExpandedEntry] = useState(null);
   const autosaveTimer = useRef(null);
-  const entriesRef    = useRef(null);
+  const entriesRef = useRef(null);
+
+  useEffect(() => {
+    const fetchEntries = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/journal-input");
+        const data = await res.json();
+        setEntries(data.data); // isi state dengan entries dari server
+      } catch (err) {
+        console.log("gagal fetch entries", err);
+      }
+    };
+
+    fetchEntries();
+  }, []);
 
   // mood & moodScore diambil dari halaman Mood, di-pass via props / global state
   // untuk sementara diterima sebagai prop; default null
   // contoh integrasi: <Journal currentMood="stable" currentMoodScore={66} />
-  const currentMood      = null; // ganti dengan props.currentMood atau context
+  const currentMood = null; // ganti dengan props.currentMood atau context
   const currentMoodScore = null; // ganti dengan props.currentMoodScore atau context
 
   const handleTextChange = (e) => {
@@ -112,10 +131,13 @@ export function Journal() {
     }, 3000);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!text.trim()) return;
     const now = new Date();
-    const dateLabel = now.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const dateLabel = now.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
     const firstLine = text.split("\n").find((l) => l.trim()) || "Untitled";
 
     const newEntry = {
@@ -131,27 +153,52 @@ export function Journal() {
      * TODO (API): POST /api/journal/entries
      * { title, body, mood, mood_score }
      */
-    setEntries((prev) => [newEntry, ...prev]);
-    setText("");
-    setTitle("");
-    setSaveState("idle");
+    try {
+      const res = await fetch("http://localhost:5000/journal-input", {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({
+          title: newEntry.title,
+          body: newEntry.body,
+          mood: newEntry.mood,
+          moodScore: newEntry.moodScore,
+        }),
+      });
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
-    setTimeout(() => {
-      entriesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+      setEntries((prev) => [newEntry, ...prev]);
+      setText("");
+      setTitle("");
+      setSaveState("idle");
+
+      setTimeout(() => {
+        entriesRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100);
+    } catch (err) {
+      console.log("tidak berhasil fetch", err);
+    }
   };
 
-  const handleDelete = (id, e) => {
+  
+
+  const handleDelete = async (id, e) => {
     e.stopPropagation();
-    /**
-     * TODO (API): DELETE /api/journal/entries/:id
-     */
+    await fetch ("http://localhost:5000/journal-input", {
+      method: "DELETE"
+    });
     setEntries((prev) => prev.filter((en) => en.id !== id));
     if (expandedEntry === id) setExpandedEntry(null);
   };
 
   const saveLabel =
-    saveState === "saved" ? "Autosaved ✓" : saveState === "saving" ? "Saving..." : "Save Entry";
+    saveState === "saved"
+      ? "Autosaved ✓"
+      : saveState === "saving"
+        ? "Saving..."
+        : "Save Entry";
 
   const saveBtnClass =
     saveState === "saved"
@@ -163,18 +210,28 @@ export function Journal() {
   return (
     <div
       className="page-transition relative min-h-screen pb-24"
-      style={{ backgroundColor: "#fbf9f5", fontFamily: "'Be Vietnam Pro', sans-serif" }}
+      style={{
+        backgroundColor: "#fbf9f5",
+        fontFamily: "'Be Vietnam Pro', sans-serif",
+      }}
     >
       <main className="max-w-300 mx-auto px-5 md:px-10 pt-8">
         <section className="mb-8 text-center">
           <h2
             className="text-4xl sm:text-5xl font-semibold mb-2"
-            style={{ color: "#4a654e", fontFamily: "'Dancing Script', cursive" }}
+            style={{
+              color: "#4a654e",
+              fontFamily: "'Dancing Script', cursive",
+            }}
           >
             How are you feeling?
           </h2>
-          <p className="text-base max-w-md mx-auto" style={{ color: "#424842" }}>
-            Take a moment to ground yourself. There is no right or wrong way to feel.
+          <p
+            className="text-base max-w-md mx-auto"
+            style={{ color: "#424842" }}
+          >
+            Take a moment to ground yourself. There is no right or wrong way to
+            feel.
           </p>
         </section>
 
@@ -231,13 +288,19 @@ export function Journal() {
                 >
                   Previous Entries
                 </h3>
-                <span className="text-xs font-semibold" style={{ color: "#4a654e" }}>
+                <span
+                  className="text-xs font-semibold"
+                  style={{ color: "#4a654e" }}
+                >
                   {entries.length} total
                 </span>
               </div>
 
               {entries.length === 0 && (
-                <p className="text-sm text-center py-6" style={{ color: "#737972" }}>
+                <p
+                  className="text-sm text-center py-6"
+                  style={{ color: "#737972" }}
+                >
                   No entries yet. Write your first one!
                 </p>
               )}
@@ -253,16 +316,22 @@ export function Journal() {
                       exit={{ opacity: 0, x: -50, scale: 0.9 }}
                       transition={{ duration: 0.25, ease: "easeOut" }}
                       onClick={() =>
-                        setExpandedEntry(expandedEntry === entry.id ? null : entry.id)
+                        setExpandedEntry(
+                          expandedEntry === entry.id ? null : entry.id,
+                        )
                       }
                       className="rounded-2xl p-4 cursor-pointer transition-colors"
                       style={{
-                        backgroundColor: expandedEntry === entry.id ? "#eae8e4" : "#efeeea",
+                        backgroundColor:
+                          expandedEntry === entry.id ? "#eae8e4" : "#efeeea",
                       }}
                     >
                       <div className="flex justify-between items-start mb-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold" style={{ color: "#4a654e" }}>
+                          <span
+                            className="text-xs font-semibold"
+                            style={{ color: "#4a654e" }}
+                          >
                             {entry.date}
                           </span>
                           {mc && (
@@ -292,7 +361,10 @@ export function Journal() {
                       >
                         {entry.title}
                       </h4>
-                      <div style={{ borderTop: "1px solid #d8d6d2" }} className="mb-2" />
+                      <div
+                        style={{ borderTop: "1px solid #d8d6d2" }}
+                        className="mb-2"
+                      />
 
                       <p
                         className={`text-sm leading-relaxed transition-all ${
@@ -304,8 +376,13 @@ export function Journal() {
                       </p>
 
                       {entry.body.length > 120 && (
-                        <span className="text-xs mt-1 block" style={{ color: "#4a654e" }}>
-                          {expandedEntry === entry.id ? "Show less ↑" : "Read more ↓"}
+                        <span
+                          className="text-xs mt-1 block"
+                          style={{ color: "#4a654e" }}
+                        >
+                          {expandedEntry === entry.id
+                            ? "Show less ↑"
+                            : "Read more ↓"}
                         </span>
                       )}
                     </motion.div>
