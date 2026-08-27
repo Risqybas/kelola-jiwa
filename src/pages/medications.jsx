@@ -31,7 +31,7 @@ export function Medications() {
     },
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!inputTablet.trim()) return;
@@ -42,18 +42,37 @@ export function Medications() {
       schedule: selectedSchedule,
       frequency: submitFrequency || "No frequency provided.",
     };
+    try {
+      const res = await fetch ("http://localhost:5000/add-medications", {
+        method: "POST",
+        headers: {"Content-type": "application/json"},
+        body: JSON.stringify({
+          id: newEntry.id,
+          tablet: newEntry.tablet,
+          schedule: newEntry.schedule,
+          frequency: newEntry.frequency,
+        }),
+      });
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
-    setMedications([newMedication, ...medications]); // Muncul paling atas
+      setMedications([newMedication, ...medications]); // Muncul paling atas
 
-    setInputTablet("");
-    setSubmitFrequency("");
-    setSelectedSchedule("Morning");
-    setShowForm(false);
+      setInputTablet("");
+      setSubmitFrequency("");
+      setSelectedSchedule("Morning");
+      setShowForm(false);
+    } catch (err) {
+      console.log("tidak berhasil fetch", err);
+    }
   };
 
-  const handleDelete = (idToDelete) => {
+  const  handleDelete = async (id, e) => {
+    e.stopPropagation();
+    await fetch ("http://localhost:5000/add-medications", {
+      method: "DELETE"
+    });
     setMedications(medications.filter((item) => item.id !== idToDelete));
-  };
+  } //atur ini masi belum selesai
 
   return (
     <div className="page-transition relative bg-[#F5F5F5] min-h-screen pb-16">

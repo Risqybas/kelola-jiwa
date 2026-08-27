@@ -148,11 +148,6 @@ export function Journal() {
       mood: currentMood,
       moodScore: currentMoodScore,
     };
-
-    /**
-     * TODO (API): POST /api/journal/entries
-     * { title, body, mood, mood_score }
-     */
     try {
       const res = await fetch("http://localhost:5000/journal-input", {
         method: "POST",
