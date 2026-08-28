@@ -47,10 +47,10 @@ export function Medications() {
         method: "POST",
         headers: {"Content-type": "application/json"},
         body: JSON.stringify({
-          id: newEntry.id,
-          tablet: newEntry.tablet,
-          schedule: newEntry.schedule,
-          frequency: newEntry.frequency,
+          id: newMedication.id,
+          tablet: newMedication.tablet,
+          schedule: newMedication.schedule,
+          frequency: newMedication.frequency,
         }),
       });
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
@@ -67,12 +67,16 @@ export function Medications() {
   };
 
   const  handleDelete = async (id, e) => {
-    e.stopPropagation();
-    await fetch ("http://localhost:5000/add-medications", {
+    // e.stopPropagation();
+    try {
+    const response = await fetch ("http://localhost:5000/add-medications/${id}", {
       method: "DELETE"
     });
-    setMedications(medications.filter((item) => item.id !== idToDelete));
-  } //atur ini masi belum selesai
+    setMedications(medications.filter((item) => item.id !== id));
+  } catch (error) {
+    console.error("Gagal menghapus data:", error);
+  }
+};
 
   return (
     <div className="page-transition relative bg-[#F5F5F5] min-h-screen pb-16">
